@@ -1,0 +1,35 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="120" fill="#03D47C"/>
+  
+  <!-- Shadow circle -->
+  <circle cx="256" cy="260" r="180" fill="#059365" opacity="0.35"/>
+
+  <!-- Belly/body -->
+  <ellipse cx="256" cy="305" rx="150" ry="130" fill="#FFE0B5"/>
+
+  <!-- Head -->
+  <circle cx="256" cy="210" r="120" fill="#FFE0B5"/>
+
+  <!-- Shirt -->
+  <path d="M126 300C150 360 202 400 256 400C310 400 362 360 386 300V360C386 412 327 450 256 450C185 450 126 412 126 360V300Z" fill="#14532D"/>
+
+  <!-- Hat -->
+  <path d="M166 175C176 138 211 112 256 112C301 112 336 138 346 175H166Z" fill="#14532D"/>
+  <rect x="190" y="118" width="132" height="16" rx="8" fill="#0F172A"/>
+
+  <!-- Eyes -->
+  <circle cx="220" cy="205" r="10" fill="#0F172A"/>
+  <circle cx="292" cy="205" r="10" fill="#0F172A"/>
+
+  <!-- Eyebrows -->
+  <path d="M204 190C212 182 228 180 240 184" stroke="#0F172A" stroke-width="6" stroke-linecap="round"/>
+  <path d="M276 184C288 180 304 182 312 190" stroke="#0F172A" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Smile -->
+  <path d="M214 240C224 262 239 275 256 275C273 275 288 262 298 240" stroke="#B45309" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Little camp badge on shirt -->
+  <circle cx="330" cy="320" r="22" fill="#22C55E"/>
+  <path d="M330 305L338 330H322L330 305Z" fill="#065F46"/>
+</svg>
