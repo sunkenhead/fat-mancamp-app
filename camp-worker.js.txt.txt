@@ -1,0 +1,135 @@
+const ALLOWED_ORIGINS = [
+  "https://YOUR_PAGES_FRONTEND_URL",
+  "https://YOUR_FATMAN_CUSTOM_DOMAIN"
+];
+
+const KEY = "fatman_state_v1";
+
+function getCorsHeaders(origin) {
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : null;
+
+  const headers = {
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+
+  if (allowed) {
+    headers["Access-Control-Allow-Origin"] = allowed;
+  }
+
+  return headers;
+}
+
+const DEFAULT_STATE = {
+  event: {
+    title: "Fat Man Camp 2026",
+    location: "Still Classified",
+    dates: "June 12–15, 2026",
+    heroImageUrl: "https://placehold.co/1200x500?text=Fat+Man+Camp+2026"
+  },
+  timeline: {
+    itinerary: [
+      "Day 1 — Arrival, grilling, and competitive snoring",
+      "Day 2 — Breakfast of champions, hike, tactical naps",
+      "Day 3 — Feast + war stories + questionable decisions",
+      "Day 4 — Pack up, return to civilian mode"
+    ],
+    travel: [
+      {
+        id: "t1",
+        name: "John Doe",
+        method: "flight",
+        details: "AA123 — Arriving 1400"
+      },
+      {
+        id: "t2",
+        name: "Sgt. Smith",
+        method: "drive",
+        details: "ETA 1700"
+      }
+    ]
+  },
+  food: {
+    meals: [
+      {
+        day: "Day 1",
+        breakfast: "None — traveling",
+        lunch: "Sandwiches",
+        dinner: "Grill Night"
+      },
+      {
+        day: "Day 2",
+        breakfast: "Eggs & bacon",
+        lunch: "Leftovers",
+        dinner: "BBQ Night"
+      }
+    ],
+    snacks: [
+      { name: "Jerky" },
+      { name: "Trail mix" },
+      { name: "Cookies" },
+      { name: "Secret snacks (classified)" }
+    ]
+  },
+  booze: [
+    { id: "b1", type: "Whiskey", label: "Assorted", quantity: "4 bottles" },
+    { id: "b2", type: "Beer", label: "Variety Pack", quantity: "3 cases" },
+    { id: "b3", type: "Rum", label: "Captain-ish", quantity: "2 bottles" },
+    { id: "b4", type: "Mystery", label: "\"Don't Ask\"", quantity: "1 bottle" }
+  ],
+  rules: [
+    { id: "r1", text: "No politics." },
+    { id: "r2", text: "Mandatory nap respect." },
+    { id: "r3", text: "No civilian whining." },
+    { id: "r4", text: "No flamethrowers indoors." }
+  ]
+};
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const origin = request.headers.get("Origin") || "";
+
+    // CORS preflight
+    if (request.method === "OPTIONS") {
+      const headers = getCorsHeaders(origin);
+      return new Response(null, { status: 204, headers });
+    }
+
+    if (url.pathname === "/camp") {
+      const cors = getCorsHeaders(origin);
+
+      if (request.method === "GET") {
+        const value = await env.FATMAN_STATE.get(KEY);
+        const body = value || JSON.stringify(DEFAULT_STATE);
+        return new Response(body, {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...cors }
+        });
+      }
+
+      if (request.method === "POST") {
+        const text = await request.text();
+        try {
+          JSON.parse(text);
+        } catch {
+          return new Response("Invalid JSON", { status: 400, headers: cors });
+        }
+
+        await env.FATMAN_STATE.put(KEY, text);
+
+        return new Response(text, {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...cors }
+        });
+      }
+
+      return new Response("Method Not Allowed", { status: 405, headers: cors });
+    }
+
+    return new Response("Not found", {
+      status: 404,
+      headers: getCorsHeaders(origin)
+    });
+  }
+};
