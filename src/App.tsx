@@ -20,7 +20,7 @@ function Shell() {
   const { theme, toggleTheme, canInstall, install } = useThemeAndPWA();
 
   const [page, setPage] = useState<PageKey>("front");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   if (loading || !state) {
     return (
@@ -766,3 +766,4 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
