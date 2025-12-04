@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 
-const API_BASE = "https://YOUR_FATMAN_WORKER_URL"; // e.g. https://fatman-camp.fancy-frost.workers.dev
+const API_BASE = "https://quiet-mode-c397.broad-night-8709.workers.dev"; // e.g. https://fatman-camp.fancy-frost.workers.dev
 
 type TravelEntry = {
   id: string;
@@ -111,3 +111,4 @@ export function useCamp() {
   }
   return ctx;
 }
+
