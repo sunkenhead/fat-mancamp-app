@@ -623,6 +623,9 @@ function RulesPage() {
   const { state, setState } = useCamp();
   const rules = state!.rules;
 
+  // Track which rule (if any) is currently being edited
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+
   const updateRule = (id: string, value: string) => {
     setState(prev => ({
       ...prev,
@@ -638,6 +641,7 @@ function RulesPage() {
       ...prev,
       rules: [...prev.rules, { id, text: "New rule" }],
     }));
+    setEditingId(id); // auto-open new rule for editing
   };
 
   const removeRule = (id: string) => {
@@ -645,30 +649,63 @@ function RulesPage() {
       ...prev,
       rules: prev.rules.filter(r => r.id !== id),
     }));
+    if (editingId === id) {
+      setEditingId(null);
+    }
   };
 
   return (
     <div className="card">
       <h2>Notes & Rules</h2>
-      {rules.map((r, idx) => (
-        <div key={r.id} className="row" style={{ marginBottom: "0.5rem" }}>
-          <span className="muted" style={{ width: 24, textAlign: "right" }}>
-            {idx + 1}.
-          </span>
-          <input
-            value={r.text}
-            onChange={(e) => updateRule(r.id, e.target.value)}
-            placeholder="Rule / note"
-          />
-          <button
-            type="button"
-            className="danger"
-            onClick={() => removeRule(r.id)}
+      {rules.map((r, idx) => {
+        const isEditing = editingId === r.id;
+
+        return (
+          <div
+            key={r.id}
+            className="row"
+            style={{ marginBottom: "0.5rem", alignItems: "center" }}
           >
-            ✕
-          </button>
-        </div>
-      ))}
+            <span
+              className="muted"
+              style={{ width: 24, textAlign: "right", marginRight: 4 }}
+            >
+              {idx + 1}.
+            </span>
+
+            <input
+              value={r.text}
+              onChange={(e) => updateRule(r.id, e.target.value)}
+              placeholder="Rule / note"
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 260px", // shorter box
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+
+            <button
+              type="button"
+              className="secondary"
+              onClick={() =>
+                setEditingId(isEditing ? null : r.id)
+              }
+            >
+              {isEditing ? "Done" : "Edit"}
+            </button>
+
+            <button
+              type="button"
+              className="danger"
+              onClick={() => removeRule(r.id)}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      })}
+
       <button type="button" className="secondary" onClick={addRule}>
         ➕ Add Rule
       </button>
@@ -872,5 +909,6 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
