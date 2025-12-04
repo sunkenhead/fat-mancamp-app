@@ -189,18 +189,77 @@ function SidebarItem({
 /* ===== Pages ===== */
 
 function FrontPage() {
-  const { state } = useCamp();
-  const { event } = state!;
+  const { state, setState } = useCamp();
+  const { event, timeline, booze } = state!;
+
+  const updateEvent = (field: "title" | "location" | "dates" | "heroImageUrl", value: string) => {
+    setState(prev => ({
+      ...prev,
+      event: {
+        ...prev.event,
+        [field]: value,
+      },
+    }));
+  };
+
+  const heroSrc = event.heroImageUrl || "https://placehold.co/1200x500?text=Fat+Man+Camp";
+
   return (
     <div className="card">
       <img
-        src={event.heroImageUrl}
+        src={heroSrc}
         alt="Fat Man Camp hero"
         style={{ width: "100%", borderRadius: 12, marginBottom: "0.75rem" }}
       />
-      <h2>{event.title}</h2>
-      <p>{event.location}</p>
-      <p>{event.dates}</p>
+
+      <div className="row" style={{ marginBottom: "0.6rem" }}>
+        <input
+          value={event.title}
+          onChange={(e) => updateEvent("title", e.target.value)}
+          placeholder="Event title"
+        />
+      </div>
+
+      <div className="row" style={{ marginBottom: "0.6rem" }}>
+        <input
+          value={event.location}
+          onChange={(e) => updateEvent("location", e.target.value)}
+          placeholder="Location"
+        />
+        <input
+          value={event.dates}
+          onChange={(e) => updateEvent("dates", e.target.value)}
+          placeholder="Dates"
+        />
+      </div>
+
+      <div className="row" style={{ marginBottom: "0.4rem" }}>
+        <input
+          value={event.heroImageUrl}
+          onChange={(e) => updateEvent("heroImageUrl", e.target.value)}
+          placeholder="Hero image URL"
+        />
+      </div>
+
+      <p className="muted" style={{ marginBottom: "0.75rem" }}>
+        Paste an image URL above to customize the banner. A shared Google Photos link or any
+        public image URL usually works.
+      </p>
+
+      <div className="row">
+        <span className="pill">
+          🕒 {timeline.itinerary.length} itinerary item
+          {timeline.itinerary.length === 1 ? "" : "s"}
+        </span>
+        <span className="pill">
+          ✈️ {timeline.travel.length} traveler
+          {timeline.travel.length === 1 ? "" : "s"}
+        </span>
+        <span className="pill">
+          🥃 {booze.length} booze item
+          {booze.length === 1 ? "" : "s"}
+        </span>
+      </div>
     </div>
   );
 }
@@ -209,16 +268,48 @@ function TimelinePage() {
   const { state, setState } = useCamp();
   const { timeline } = state!;
 
+  const updateItineraryItem = (idx: number, value: string) => {
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: prev.timeline.itinerary.map((item, i) =>
+          i === idx ? value : item
+        ),
+      },
+    }));
+  };
+
+  const addItineraryItem = () => {
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: [...prev.timeline.itinerary, "New itinerary item"],
+      },
+    }));
+  };
+
+  const removeItineraryItem = (idx: number) => {
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: prev.timeline.itinerary.filter((_, i) => i !== idx),
+      },
+    }));
+  };
+
   const updateTravel = (
     id: string,
     field: "name" | "method" | "details",
     value: string
   ) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.map((t) =>
+        travel: prev.timeline.travel.map(t =>
           t.id === id ? { ...t, [field]: value } : t
         ),
       },
@@ -227,24 +318,24 @@ function TimelinePage() {
 
   const addTravel = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
         travel: [
           ...prev.timeline.travel,
-          { id, name: "New Guy", method: "flight", details: "" },
+          { id, name: "New Traveler", method: "flight", details: "" },
         ],
       },
     }));
   };
 
   const removeTravel = (id: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.filter((t) => t.id !== id),
+        travel: prev.timeline.travel.filter(t => t.id !== id),
       },
     }));
   };
@@ -252,14 +343,33 @@ function TimelinePage() {
   return (
     <div className="card">
       <h2>Itinerary</h2>
-      <ul className="list">
-        {timeline.itinerary.map((item, idx) => (
-          <li key={idx}>{item}</li>
-        ))}
-      </ul>
+      {timeline.itinerary.map((item, idx) => (
+        <div key={idx} className="row" style={{ marginBottom: "0.4rem" }}>
+          <input
+            value={item}
+            onChange={(e) => updateItineraryItem(idx, e.target.value)}
+            placeholder={`Item ${idx + 1}`}
+          />
+          <button
+            type="button"
+            className="danger"
+            onClick={() => removeItineraryItem(idx)}
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="secondary"
+        onClick={addItineraryItem}
+        style={{ marginBottom: "1rem" }}
+      >
+        ➕ Add Itinerary Item
+      </button>
 
       <h2>Travel Plan</h2>
-      {timeline.travel.map((t) => (
+      {timeline.travel.map(t => (
         <div key={t.id} className="row" style={{ marginBottom: "0.5rem" }}>
           <input
             value={t.name}
@@ -279,7 +389,7 @@ function TimelinePage() {
           <input
             value={t.details}
             onChange={(e) => updateTravel(t.id, "details", e.target.value)}
-            placeholder="Flight # / ETA"
+            placeholder="Flight # / ETA / notes"
           />
           <button
             type="button"
@@ -306,7 +416,7 @@ function FoodPage() {
     field: "day" | "breakfast" | "lunch" | "dinner",
     value: string
   ) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       food: {
         ...prev.food,
@@ -318,25 +428,20 @@ function FoodPage() {
   };
 
   const addMeal = () => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       food: {
         ...prev.food,
         meals: [
           ...prev.food.meals,
-          {
-            day: "New Day",
-            breakfast: "",
-            lunch: "",
-            dinner: "",
-          },
+          { day: "New Day", breakfast: "", lunch: "", dinner: "" },
         ],
       },
     }));
   };
 
   const removeMeal = (idx: number) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       food: {
         ...prev.food,
@@ -346,7 +451,7 @@ function FoodPage() {
   };
 
   const addSnack = () => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       food: {
         ...prev.food,
@@ -356,7 +461,7 @@ function FoodPage() {
   };
 
   const updateSnack = (idx: number, value: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       food: {
         ...prev.food,
@@ -368,7 +473,7 @@ function FoodPage() {
   };
 
   const removeSnack = (idx: number) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       food: {
         ...prev.food,
@@ -399,9 +504,7 @@ function FoodPage() {
           <div className="row">
             <input
               value={m.breakfast}
-              onChange={(e) =>
-                updateMeal(i, "breakfast", e.target.value)
-              }
+              onChange={(e) => updateMeal(i, "breakfast", e.target.value)}
               placeholder="Breakfast"
             />
             <input
@@ -454,9 +557,9 @@ function BoozePage() {
     field: "type" | "label" | "quantity",
     value: string
   ) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      booze: prev.booze.map((b) =>
+      booze: prev.booze.map(b =>
         b.id === id ? { ...b, [field]: value } : b
       ),
     }));
@@ -464,7 +567,7 @@ function BoozePage() {
 
   const addItem = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       booze: [
         ...prev.booze,
@@ -474,21 +577,21 @@ function BoozePage() {
   };
 
   const removeItem = (id: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      booze: prev.booze.filter((b) => b.id !== id),
+      booze: prev.booze.filter(b => b.id !== id),
     }));
   };
 
   return (
     <div className="card">
       <h2>Booze Inventory</h2>
-      {booze.map((b) => (
+      {booze.map(b => (
         <div key={b.id} className="row" style={{ marginBottom: "0.5rem" }}>
           <input
             value={b.type}
             onChange={(e) => updateItem(b.id, "type", e.target.value)}
-            placeholder="Type"
+            placeholder="Type (Whiskey, Beer, etc.)"
           />
           <input
             value={b.label}
@@ -521,9 +624,9 @@ function RulesPage() {
   const rules = state!.rules;
 
   const updateRule = (id: string, value: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      rules: prev.rules.map((r) =>
+      rules: prev.rules.map(r =>
         r.id === id ? { ...r, text: value } : r
       ),
     }));
@@ -531,24 +634,27 @@ function RulesPage() {
 
   const addRule = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       rules: [...prev.rules, { id, text: "New rule" }],
     }));
   };
 
   const removeRule = (id: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      rules: prev.rules.filter((r) => r.id !== id),
+      rules: prev.rules.filter(r => r.id !== id),
     }));
   };
 
   return (
     <div className="card">
       <h2>Notes & Rules</h2>
-      {rules.map((r) => (
+      {rules.map((r, idx) => (
         <div key={r.id} className="row" style={{ marginBottom: "0.5rem" }}>
+          <span className="muted" style={{ width: 24, textAlign: "right" }}>
+            {idx + 1}.
+          </span>
           <input
             value={r.text}
             onChange={(e) => updateRule(r.id, e.target.value)}
@@ -766,4 +872,5 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
