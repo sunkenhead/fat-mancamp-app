@@ -191,9 +191,13 @@ function SidebarItem({
 function FrontPage() {
   const { state, setState } = useCamp();
   const { event, timeline, booze } = state!;
+  const [editing, setEditing] = React.useState(false);
 
-  const updateEvent = (field: "title" | "location" | "dates" | "heroImageUrl", value: string) => {
-    setState(prev => ({
+  const updateEvent = (
+    field: "title" | "location" | "dates" | "heroImageUrl",
+    value: string
+  ) => {
+    setState((prev) => ({
       ...prev,
       event: {
         ...prev.event,
@@ -202,7 +206,8 @@ function FrontPage() {
     }));
   };
 
-  const heroSrc = event.heroImageUrl || "https://placehold.co/1200x500?text=Fat+Man+Camp";
+  const heroSrc =
+    event.heroImageUrl || "https://placehold.co/1200x500?text=Fat+Man+Camp";
 
   return (
     <div className="card">
@@ -212,24 +217,47 @@ function FrontPage() {
         style={{ width: "100%", borderRadius: 12, marginBottom: "0.75rem" }}
       />
 
-      <div className="row" style={{ marginBottom: "0.6rem" }}>
+      <div className="row" style={{ marginBottom: "0.5rem" }}>
         <input
           value={event.title}
           onChange={(e) => updateEvent("title", e.target.value)}
           placeholder="Event title"
+          readOnly={!editing}
+          style={{
+            flex: "0 1 260px",
+            opacity: editing ? 1 : 0.85,
+            cursor: editing ? "text" : "default",
+          }}
         />
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => setEditing((e) => !e)}
+        >
+          {editing ? "Done" : "Edit"}
+        </button>
       </div>
 
-      <div className="row" style={{ marginBottom: "0.6rem" }}>
+      <div className="row" style={{ marginBottom: "0.5rem" }}>
         <input
           value={event.location}
           onChange={(e) => updateEvent("location", e.target.value)}
           placeholder="Location"
+          readOnly={!editing}
+          style={{
+            opacity: editing ? 1 : 0.85,
+            cursor: editing ? "text" : "default",
+          }}
         />
         <input
           value={event.dates}
           onChange={(e) => updateEvent("dates", e.target.value)}
           placeholder="Dates"
+          readOnly={!editing}
+          style={{
+            opacity: editing ? 1 : 0.85,
+            cursor: editing ? "text" : "default",
+          }}
         />
       </div>
 
@@ -238,12 +266,16 @@ function FrontPage() {
           value={event.heroImageUrl}
           onChange={(e) => updateEvent("heroImageUrl", e.target.value)}
           placeholder="Hero image URL"
+          readOnly={!editing}
+          style={{
+            opacity: editing ? 1 : 0.85,
+            cursor: editing ? "text" : "default",
+          }}
         />
       </div>
 
       <p className="muted" style={{ marginBottom: "0.75rem" }}>
-        Paste an image URL above to customize the banner. A shared Google Photos link or any
-        public image URL usually works.
+        Edit to customize title, dates, and banner image. Paste any public image URL.
       </p>
 
       <div className="row">
@@ -268,8 +300,14 @@ function TimelinePage() {
   const { state, setState } = useCamp();
   const { timeline } = state!;
 
+  const [editingItineraryIndex, setEditingItineraryIndex] =
+    React.useState<number | null>(null);
+  const [editingTravelId, setEditingTravelId] = React.useState<string | null>(
+    null
+  );
+
   const updateItineraryItem = (idx: number, value: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
@@ -281,23 +319,25 @@ function TimelinePage() {
   };
 
   const addItineraryItem = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
         itinerary: [...prev.timeline.itinerary, "New itinerary item"],
       },
     }));
+    setEditingItineraryIndex(timeline.itinerary.length);
   };
 
   const removeItineraryItem = (idx: number) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
         itinerary: prev.timeline.itinerary.filter((_, i) => i !== idx),
       },
     }));
+    if (editingItineraryIndex === idx) setEditingItineraryIndex(null);
   };
 
   const updateTravel = (
@@ -305,11 +345,11 @@ function TimelinePage() {
     field: "name" | "method" | "details",
     value: string
   ) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.map(t =>
+        travel: prev.timeline.travel.map((t) =>
           t.id === id ? { ...t, [field]: value } : t
         ),
       },
@@ -318,7 +358,7 @@ function TimelinePage() {
 
   const addTravel = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
@@ -328,37 +368,67 @@ function TimelinePage() {
         ],
       },
     }));
+    setEditingTravelId(id);
   };
 
   const removeTravel = (id: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.filter(t => t.id !== id),
+        travel: prev.timeline.travel.filter((t) => t.id !== id),
       },
     }));
+    if (editingTravelId === id) setEditingTravelId(null);
   };
 
   return (
     <div className="card">
       <h2>Itinerary</h2>
-      {timeline.itinerary.map((item, idx) => (
-        <div key={idx} className="row" style={{ marginBottom: "0.4rem" }}>
-          <input
-            value={item}
-            onChange={(e) => updateItineraryItem(idx, e.target.value)}
-            placeholder={`Item ${idx + 1}`}
-          />
-          <button
-            type="button"
-            className="danger"
-            onClick={() => removeItineraryItem(idx)}
+      {timeline.itinerary.map((item, idx) => {
+        const isEditing = editingItineraryIndex === idx;
+        return (
+          <div
+            key={idx}
+            className="row"
+            style={{ marginBottom: "0.4rem", alignItems: "center" }}
           >
-            ✕
-          </button>
-        </div>
-      ))}
+            <span
+              className="muted"
+              style={{ width: 24, textAlign: "right", marginRight: 4 }}
+            >
+              {idx + 1}.
+            </span>
+            <input
+              value={item}
+              onChange={(e) => updateItineraryItem(idx, e.target.value)}
+              placeholder={`Item ${idx + 1}`}
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 260px",
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <button
+              type="button"
+              className="secondary"
+              onClick={() =>
+                setEditingItineraryIndex(isEditing ? null : idx)
+              }
+            >
+              {isEditing ? "Done" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="danger"
+              onClick={() => removeItineraryItem(idx)}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      })}
       <button
         type="button"
         className="secondary"
@@ -369,37 +439,67 @@ function TimelinePage() {
       </button>
 
       <h2>Travel Plan</h2>
-      {timeline.travel.map(t => (
-        <div key={t.id} className="row" style={{ marginBottom: "0.5rem" }}>
-          <input
-            value={t.name}
-            onChange={(e) => updateTravel(t.id, "name", e.target.value)}
-            placeholder="Name"
-          />
-          <select
-            value={t.method}
-            onChange={(e) =>
-              updateTravel(t.id, "method", e.target.value as any)
-            }
+      {timeline.travel.map((t) => {
+        const isEditing = editingTravelId === t.id;
+        return (
+          <div
+            key={t.id}
+            className="row"
+            style={{ marginBottom: "0.5rem", alignItems: "center" }}
           >
-            <option value="flight">Flight</option>
-            <option value="drive">Drive</option>
-            <option value="other">Other</option>
-          </select>
-          <input
-            value={t.details}
-            onChange={(e) => updateTravel(t.id, "details", e.target.value)}
-            placeholder="Flight # / ETA / notes"
-          />
-          <button
-            type="button"
-            className="danger"
-            onClick={() => removeTravel(t.id)}
-          >
-            ✕
-          </button>
-        </div>
-      ))}
+            <input
+              value={t.name}
+              onChange={(e) => updateTravel(t.id, "name", e.target.value)}
+              placeholder="Name"
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 160px",
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <select
+              value={t.method}
+              onChange={(e) =>
+                updateTravel(t.id, "method", e.target.value as any)
+              }
+              disabled={!isEditing}
+            >
+              <option value="flight">Flight</option>
+              <option value="drive">Drive</option>
+              <option value="other">Other</option>
+            </select>
+            <input
+              value={t.details}
+              onChange={(e) =>
+                updateTravel(t.id, "details", e.target.value)
+              }
+              placeholder="Flight # / ETA / notes"
+              readOnly={!isEditing}
+              style={{
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <button
+              type="button"
+              className="secondary"
+              onClick={() =>
+                setEditingTravelId(isEditing ? null : t.id)
+              }
+            >
+              {isEditing ? "Done" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="danger"
+              onClick={() => removeTravel(t.id)}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      })}
       <button type="button" className="secondary" onClick={addTravel}>
         ➕ Add Traveler
       </button>
@@ -411,12 +511,17 @@ function FoodPage() {
   const { state, setState } = useCamp();
   const { food } = state!;
 
+  const [editingMealIndex, setEditingMealIndex] =
+    React.useState<number | null>(null);
+  const [editingSnackIndex, setEditingSnackIndex] =
+    React.useState<number | null>(null);
+
   const updateMeal = (
     idx: number,
     field: "day" | "breakfast" | "lunch" | "dinner",
     value: string
   ) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
@@ -428,7 +533,7 @@ function FoodPage() {
   };
 
   const addMeal = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
@@ -438,30 +543,33 @@ function FoodPage() {
         ],
       },
     }));
+    setEditingMealIndex(food.meals.length);
   };
 
   const removeMeal = (idx: number) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
         meals: prev.food.meals.filter((_, i) => i !== idx),
       },
     }));
+    if (editingMealIndex === idx) setEditingMealIndex(null);
   };
 
   const addSnack = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
         snacks: [...prev.food.snacks, { name: "New Snack" }],
       },
     }));
+    setEditingSnackIndex(food.snacks.length);
   };
 
   const updateSnack = (idx: number, value: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
@@ -473,74 +581,136 @@ function FoodPage() {
   };
 
   const removeSnack = (idx: number) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
         snacks: prev.food.snacks.filter((_, i) => i !== idx),
       },
     }));
+    if (editingSnackIndex === idx) setEditingSnackIndex(null);
   };
 
   return (
     <div className="card">
       <h2>Meal Plan</h2>
-      {food.meals.map((m, i) => (
-        <div key={i} className="card" style={{ marginBottom: "0.5rem" }}>
-          <div className="row">
-            <input
-              value={m.day}
-              onChange={(e) => updateMeal(i, "day", e.target.value)}
-              placeholder="Day"
-            />
-            <button
-              type="button"
-              className="danger"
-              onClick={() => removeMeal(i)}
-            >
-              ✕
-            </button>
+      {food.meals.map((m, i) => {
+        const isEditing = editingMealIndex === i;
+        return (
+          <div key={i} className="card" style={{ marginBottom: "0.5rem" }}>
+            <div className="row" style={{ alignItems: "center" }}>
+              <input
+                value={m.day}
+                onChange={(e) => updateMeal(i, "day", e.target.value)}
+                placeholder="Day"
+                readOnly={!isEditing}
+                style={{
+                  flex: "0 1 160px",
+                  opacity: isEditing ? 1 : 0.85,
+                  cursor: isEditing ? "text" : "default",
+                }}
+              />
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  setEditingMealIndex(isEditing ? null : i)
+                }
+              >
+                {isEditing ? "Done" : "Edit"}
+              </button>
+              <button
+                type="button"
+                className="danger"
+                onClick={() => removeMeal(i)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="row">
+              <input
+                value={m.breakfast}
+                onChange={(e) =>
+                  updateMeal(i, "breakfast", e.target.value)
+                }
+                placeholder="Breakfast"
+                readOnly={!isEditing}
+                style={{
+                  opacity: isEditing ? 1 : 0.85,
+                  cursor: isEditing ? "text" : "default",
+                }}
+              />
+              <input
+                value={m.lunch}
+                onChange={(e) =>
+                  updateMeal(i, "lunch", e.target.value)
+                }
+                placeholder="Lunch"
+                readOnly={!isEditing}
+                style={{
+                  opacity: isEditing ? 1 : 0.85,
+                  cursor: isEditing ? "text" : "default",
+                }}
+              />
+              <input
+                value={m.dinner}
+                onChange={(e) =>
+                  updateMeal(i, "dinner", e.target.value)
+                }
+                placeholder="Dinner"
+                readOnly={!isEditing}
+                style={{
+                  opacity: isEditing ? 1 : 0.85,
+                  cursor: isEditing ? "text" : "default",
+                }}
+              />
+            </div>
           </div>
-          <div className="row">
-            <input
-              value={m.breakfast}
-              onChange={(e) => updateMeal(i, "breakfast", e.target.value)}
-              placeholder="Breakfast"
-            />
-            <input
-              value={m.lunch}
-              onChange={(e) => updateMeal(i, "lunch", e.target.value)}
-              placeholder="Lunch"
-            />
-            <input
-              value={m.dinner}
-              onChange={(e) => updateMeal(i, "dinner", e.target.value)}
-              placeholder="Dinner"
-            />
-          </div>
-        </div>
-      ))}
+        );
+      })}
       <button type="button" className="secondary" onClick={addMeal}>
         ➕ Add Day
       </button>
 
       <h2 style={{ marginTop: "1rem" }}>Snacks</h2>
-      {food.snacks.map((s, i) => (
-        <div key={i} className="row" style={{ marginBottom: "0.5rem" }}>
-          <input
-            value={s.name}
-            onChange={(e) => updateSnack(i, e.target.value)}
-            placeholder="Snack"
-          />
-          <button
-            type="button"
-            className="danger"
-            onClick={() => removeSnack(i)}
+      {food.snacks.map((s, i) => {
+        const isEditing = editingSnackIndex === i;
+        return (
+          <div
+            key={i}
+            className="row"
+            style={{ marginBottom: "0.5rem", alignItems: "center" }}
           >
-            ✕
-          </button>
-        </div>
-      ))}
+            <input
+              value={s.name}
+              onChange={(e) => updateSnack(i, e.target.value)}
+              placeholder="Snack"
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 260px",
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <button
+              type="button"
+              className="secondary"
+              onClick={() =>
+                setEditingSnackIndex(isEditing ? null : i)
+              }
+            >
+              {isEditing ? "Done" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="danger"
+              onClick={() => removeSnack(i)}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      })}
       <button type="button" className="secondary" onClick={addSnack}>
         ➕ Add Snack
       </button>
@@ -552,14 +722,16 @@ function BoozePage() {
   const { state, setState } = useCamp();
   const booze = state!.booze;
 
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+
   const updateItem = (
     id: string,
     field: "type" | "label" | "quantity",
     value: string
   ) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      booze: prev.booze.map(b =>
+      booze: prev.booze.map((b) =>
         b.id === id ? { ...b, [field]: value } : b
       ),
     }));
@@ -567,51 +739,91 @@ function BoozePage() {
 
   const addItem = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       booze: [
         ...prev.booze,
         { id, type: "Whiskey", label: "New Bottle", quantity: "1" },
       ],
     }));
+    setEditingId(id);
   };
 
   const removeItem = (id: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      booze: prev.booze.filter(b => b.id !== id),
+      booze: prev.booze.filter((b) => b.id !== id),
     }));
+    if (editingId === id) setEditingId(null);
   };
 
   return (
     <div className="card">
       <h2>Booze Inventory</h2>
-      {booze.map(b => (
-        <div key={b.id} className="row" style={{ marginBottom: "0.5rem" }}>
-          <input
-            value={b.type}
-            onChange={(e) => updateItem(b.id, "type", e.target.value)}
-            placeholder="Type (Whiskey, Beer, etc.)"
-          />
-          <input
-            value={b.label}
-            onChange={(e) => updateItem(b.id, "label", e.target.value)}
-            placeholder="Label / Brand"
-          />
-          <input
-            value={b.quantity}
-            onChange={(e) => updateItem(b.id, "quantity", e.target.value)}
-            placeholder="Quantity"
-          />
-          <button
-            type="button"
-            className="danger"
-            onClick={() => removeItem(b.id)}
+      {booze.map((b) => {
+        const isEditing = editingId === b.id;
+        return (
+          <div
+            key={b.id}
+            className="row"
+            style={{ marginBottom: "0.5rem", alignItems: "center" }}
           >
-            ✕
-          </button>
-        </div>
-      ))}
+            <input
+              value={b.type}
+              onChange={(e) =>
+                updateItem(b.id, "type", e.target.value)
+              }
+              placeholder="Type"
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 140px",
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <input
+              value={b.label}
+              onChange={(e) =>
+                updateItem(b.id, "label", e.target.value)
+              }
+              placeholder="Label / Brand"
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 180px",
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <input
+              value={b.quantity}
+              onChange={(e) =>
+                updateItem(b.id, "quantity", e.target.value)
+              }
+              placeholder="Qty"
+              readOnly={!isEditing}
+              style={{
+                flex: "0 1 80px",
+                opacity: isEditing ? 1 : 0.85,
+                cursor: isEditing ? "text" : "default",
+              }}
+            />
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setEditingId(isEditing ? null : b.id)}
+            >
+              {isEditing ? "Done" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="danger"
+              onClick={() => removeItem(b.id)}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      })}
       <button type="button" className="secondary" onClick={addItem}>
         ➕ Add Item
       </button>
@@ -909,6 +1121,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
