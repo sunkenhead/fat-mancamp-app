@@ -1,21 +1,21 @@
 :root {
-  --bg: #f5f5f7;
-  --text: #222222;
+  --bg: #03D47C;           /* Expensify green */
+  --text: #111827;
   --card-bg: #ffffff;
-  --card-shadow: 0 8px 20px rgba(0,0,0,0.05);
-  --subtitle: #666666;
-  --muted: #6b7280;
-  --pill-bg: #e5e7eb;
-  --pill-next-bg: #2563eb;
+  --card-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  --subtitle: #0c1b33;
+  --muted: #0c1b33;
+  --pill-bg: rgba(255,255,255,0.22);
+  --pill-next-bg: #0c1b33;
   --pill-next-text: #ffffff;
-  --badge-bg: #f97316;
-  --install-btn-bg: #111827;
+  --badge-bg: #0c1b33;
+  --install-btn-bg: #0c1b33;
   --install-btn-text: #ffffff;
-  --secondary-bg: #e5e7eb;
-  --secondary-text: #111827;
+  --secondary-bg: rgba(255,255,255,0.2);
+  --secondary-text: #0c1b33;
   --danger-bg: #b91c1c;
   --danger-text: #ffffff;
-  --input-border: #cccccc;
+  --input-border: rgba(15,23,42,0.2);
 }
 
 :root[data-theme="dark"] {
@@ -217,3 +217,4 @@ th, td {
   .top-right { align-items: flex-start; }
   .top-left { align-items: flex-start; }
 }
+
