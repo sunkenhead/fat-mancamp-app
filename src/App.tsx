@@ -302,6 +302,7 @@ function TimelinePage() {
 
   const [editingDayId, setEditingDayId] = React.useState<string | null>(null);
   const [editingActivityId, setEditingActivityId] = React.useState<string | null>(null);
+  const [editingTravelId, setEditingTravelId] = React.useState<string | null>(null);
 
   /* ===== Day helpers ===== */
 
@@ -319,14 +320,13 @@ function TimelinePage() {
 
   const addDay = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    const label = `New Day`;
     setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
         itinerary: [
           ...prev.timeline.itinerary,
-          { id, label, activities: [] },
+          { id, label: "New Day", activities: [] },
         ],
       },
     }));
@@ -426,11 +426,7 @@ function TimelinePage() {
     if (editingActivityId === activityId) setEditingActivityId(null);
   };
 
-  const moveActivity = (
-    dayId: string,
-    from: number,
-    to: number
-  ) => {
+  const moveActivity = (dayId: string, from: number, to: number) => {
     setState(prev => ({
       ...prev,
       timeline: {
@@ -447,10 +443,9 @@ function TimelinePage() {
     }));
   };
 
-  /* ===== Travel helpers (unchanged from before) ===== */
+  /* ===== Travel helpers ===== */
 
   const { travel } = timeline;
-  const [editingTravelId, setEditingTravelId] = React.useState<string | null>(null);
 
   const updateTravel = (
     id: string,
@@ -516,49 +511,55 @@ function TimelinePage() {
               >
                 {dayIndex + 1}.
               </span>
+
               <input
                 value={day.label}
                 onChange={(e) => updateDayLabel(day.id, e.target.value)}
                 placeholder="Day label (e.g. Day 1 - 29 Oct 2025)"
                 readOnly={!isDayEditing}
                 style={{
-                  flex: "0 1 320px",
+                  flex: "1 1 auto",
+                  maxWidth: 360,
                   opacity: isDayEditing ? 1 : 0.85,
                   cursor: isDayEditing ? "text" : "default",
                 }}
               />
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
-                  setEditingDayId(isDayEditing ? null : day.id)
-                }
-              >
-                {isDayEditing ? "Done" : "Edit"}
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                disabled={atTop}
-                onClick={() => moveDay(dayIndex, dayIndex - 1)}
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                disabled={atBottom}
-                onClick={() => moveDay(dayIndex, dayIndex + 1)}
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                className="danger"
-                onClick={() => removeDay(day.id)}
-              >
-                ✕
-              </button>
+
+              {/* Right-aligned actions */}
+              <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    setEditingDayId(isDayEditing ? null : day.id)
+                  }
+                >
+                  {isDayEditing ? "Done" : "Edit"}
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={atTop}
+                  onClick={() => moveDay(dayIndex, dayIndex - 1)}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={atBottom}
+                  onClick={() => moveDay(dayIndex, dayIndex + 1)}
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => removeDay(day.id)}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             {/* Activities under this day */}
@@ -598,54 +599,59 @@ function TimelinePage() {
                     placeholder="Arrival"
                     readOnly={!isEditing}
                     style={{
-                      flex: "0 1 260px",
+                      flex: "1 1 auto",
+                      maxWidth: 260,
                       opacity: isEditing ? 1 : 0.85,
                       cursor: isEditing ? "text" : "default",
                     }}
                   />
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() =>
-                      setEditingActivityId(isEditing ? null : a.id)
-                    }
-                  >
-                    {isEditing ? "Done" : "Edit"}
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary"
-                    disabled={actAtTop}
-                    onClick={() =>
-                      moveActivity(day.id, idx, idx - 1)
-                    }
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary"
-                    disabled={actAtBottom}
-                    onClick={() =>
-                      moveActivity(day.id, idx, idx + 1)
-                    }
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={() =>
-                      removeActivity(day.id, a.id)
-                    }
-                  >
-                    ✕
-                  </button>
+
+                  {/* Right-aligned actions */}
+                  <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={() =>
+                        setEditingActivityId(isEditing ? null : a.id)
+                      }
+                    >
+                      {isEditing ? "Done" : "Edit"}
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={actAtTop}
+                      onClick={() =>
+                        moveActivity(day.id, idx, idx - 1)
+                      }
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={actAtBottom}
+                      onClick={() =>
+                        moveActivity(day.id, idx, idx + 1)
+                      }
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() =>
+                        removeActivity(day.id, a.id)
+                      }
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               );
             })}
 
-            <div style={{ marginLeft: "2rem" }}>
+            <div style={{ marginLeft: "2rem", marginTop: "0.2rem" }}>
               <button
                 type="button"
                 className="secondary"
@@ -667,71 +673,86 @@ function TimelinePage() {
         ➕ Add Day
       </button>
 
-      {/* Travel section stays as before */}
+      {/* Travel section */}
       <h2 style={{ marginTop: "1.5rem" }}>Travel Plan</h2>
       {travel.map((t) => {
         const isEditing = editingTravelId === t.id;
+
         return (
           <div
             key={t.id}
-            className="row"
-            style={{ marginBottom: "0.5rem", alignItems: "center" }}
+            className="card"
+            style={{ marginBottom: "0.6rem", padding: "0.6rem 0.75rem" }}
           >
-            <input
-              value={t.name}
-              onChange={(e) =>
-                updateTravel(t.id, "name", e.target.value)
-              }
-              placeholder="Name"
-              readOnly={!isEditing}
-              style={{
-                flex: "0 1 160px",
-                opacity: isEditing ? 1 : 0.85,
-                cursor: isEditing ? "text" : "default",
-              }}
-            />
-            <select
-              value={t.method}
-              onChange={(e) =>
-                updateTravel(t.id, "method", e.target.value as any)
-              }
-              disabled={!isEditing}
-            >
-              <option value="flight">Flight</option>
-              <option value="drive">Drive</option>
-              <option value="other">Other</option>
-            </select>
-            <input
-              value={t.details}
-              onChange={(e) =>
-                updateTravel(t.id, "details", e.target.value)
-              }
-              placeholder="Flight # / ETA / notes"
-              readOnly={!isEditing}
-              style={{
-                opacity: isEditing ? 1 : 0.85,
-                cursor: isEditing ? "text" : "default",
-              }}
-            />
-            <button
-              type="button"
-              className="secondary"
-              onClick={() =>
-                setEditingTravelId(isEditing ? null : t.id)
-              }
-            >
-              {isEditing ? "Done" : "Edit"}
-            </button>
-            <button
-              type="button"
-              className="danger"
-              onClick={() => removeTravel(t.id)}
-            >
-              ✕
-            </button>
+            {/* Top row: name + buttons aligned right */}
+            <div className="row" style={{ alignItems: "center" }}>
+              <input
+                value={t.name}
+                onChange={(e) =>
+                  updateTravel(t.id, "name", e.target.value)
+                }
+                placeholder="Name"
+                readOnly={!isEditing}
+                style={{
+                  flex: "1 1 auto",
+                  maxWidth: 220,
+                  opacity: isEditing ? 1 : 0.85,
+                  cursor: isEditing ? "text" : "default",
+                }}
+              />
+
+              <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    setEditingTravelId(isEditing ? null : t.id)
+                  }
+                >
+                  {isEditing ? "Done" : "Edit"}
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => removeTravel(t.id)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Second row: method + details */}
+            <div className="row" style={{ marginTop: "0.4rem" }}>
+              <select
+                value={t.method}
+                onChange={(e) =>
+                  updateTravel(t.id, "method", e.target.value as any)
+                }
+                disabled={!isEditing}
+                style={{ flex: "0 0 120px" }}
+              >
+                <option value="flight">Flight</option>
+                <option value="drive">Drive</option>
+                <option value="other">Other</option>
+              </select>
+              <input
+                value={t.details}
+                onChange={(e) =>
+                  updateTravel(t.id, "details", e.target.value)
+                }
+                placeholder="Flight # / ETA / notes"
+                readOnly={!isEditing}
+                style={{
+                  flex: "1 1 auto",
+                  opacity: isEditing ? 1 : 0.85,
+                  cursor: isEditing ? "text" : "default",
+                }}
+              />
+            </div>
           </div>
         );
       })}
+
       <button type="button" className="secondary" onClick={addTravel}>
         ➕ Add Traveler
       </button>
@@ -1353,6 +1374,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
