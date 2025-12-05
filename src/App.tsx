@@ -999,8 +999,18 @@ function FoodPage() {
 function BoozePage() {
   const { state, setState } = useCamp();
   const booze = state!.booze;
+  const travelers = state!.timeline.travel;
 
-  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editingBoozeId, setEditingBoozeId] = React.useState<string | null>(null);
+  const [editingPrefId, setEditingPrefId] = React.useState<string | null>(null);
+
+  type PreferenceValue = "beer" | "liquor" | "non-alcoholic";
+
+  // Safely read preferences even if the field didn't exist before
+  const boozePrefs: { travelerId: string; preference: PreferenceValue }[] =
+    ((state as any).boozePreferences as
+      | { travelerId: string; preference: PreferenceValue }[]
+      | undefined) ?? [];
 
   const updateItem = (
     id: string,
@@ -1009,7 +1019,7 @@ function BoozePage() {
   ) => {
     setState((prev) => ({
       ...prev,
-      booze: prev.booze.map((b) =>
+      booze: prev.booze.map((b: any) =>
         b.id === id ? { ...b, [field]: value } : b
       ),
     }));
@@ -1024,22 +1034,45 @@ function BoozePage() {
         { id, type: "Whiskey", label: "New Bottle", quantity: "1" },
       ],
     }));
-    setEditingId(id);
+    setEditingBoozeId(id);
   };
 
   const removeItem = (id: string) => {
     setState((prev) => ({
       ...prev,
-      booze: prev.booze.filter((b) => b.id !== id),
+      booze: prev.booze.filter((b: any) => b.id !== id),
     }));
-    if (editingId === id) setEditingId(null);
+    if (editingBoozeId === id) setEditingBoozeId(null);
+  };
+
+  const updatePreference = (travelerId: string, preference: PreferenceValue) => {
+    setState((prev) => {
+      const currentPrefs: { travelerId: string; preference: PreferenceValue }[] =
+        ((prev as any).boozePreferences as any[]) ?? [];
+      const idx = currentPrefs.findIndex((p) => p.travelerId === travelerId);
+      const updatedPref = { travelerId, preference };
+      const newPrefs =
+        idx === -1
+          ? [...currentPrefs, updatedPref]
+          : currentPrefs.map((p, i) => (i === idx ? updatedPref : p));
+      return {
+        ...prev,
+        boozePreferences: newPrefs,
+      } as any;
+    });
+  };
+
+  const getPreferenceFor = (travelerId: string): PreferenceValue | "" => {
+    const pref = boozePrefs.find((p) => p.travelerId === travelerId);
+    return pref?.preference ?? "";
   };
 
   return (
     <div className="card">
+      {/* ===== Inventory section ===== */}
       <h2>Booze Inventory</h2>
-      {booze.map((b) => {
-        const isEditing = editingId === b.id;
+      {booze.map((b: any) => {
+        const isEditing = editingBoozeId === b.id;
         return (
           <div
             key={b.id}
@@ -1085,26 +1118,97 @@ function BoozePage() {
                 cursor: isEditing ? "text" : "default",
               }}
             />
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => setEditingId(isEditing ? null : b.id)}
-            >
-              {isEditing ? "Done" : "Edit"}
-            </button>
-            <button
-              type="button"
-              className="danger"
-              onClick={() => removeItem(b.id)}
-            >
-              ✕
-            </button>
+
+            {/* Right-aligned actions */}
+            <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  setEditingBoozeId(isEditing ? null : b.id)
+                }
+              >
+                {isEditing ? "Done" : "Edit"}
+              </button>
+              <button
+                type="button"
+                className="danger"
+                onClick={() => removeItem(b.id)}
+              >
+                ✕
+              </button>
+            </div>
           </div>
         );
       })}
       <button type="button" className="secondary" onClick={addItem}>
         ➕ Add Item
       </button>
+
+      {/* ===== Preferences section ===== */}
+      <h2 style={{ marginTop: "1.5rem" }}>Preferences</h2>
+      <p className="muted" style={{ marginBottom: "0.5rem" }}>
+        Set each traveler&apos;s go-to option so booze runs stay efficient.
+      </p>
+
+      {travelers.length === 0 && (
+        <p className="muted">No travelers yet. Add people in the Travel Plan section first.</p>
+      )}
+
+      {travelers.map((t) => {
+        const isEditing = editingPrefId === t.id;
+        const value = getPreferenceFor(t.id);
+
+        return (
+          <div
+            key={t.id}
+            className="row"
+            style={{ marginBottom: "0.4rem", alignItems: "center" }}
+          >
+            {/* Name (not editable here) */}
+            <span
+              style={{
+                minWidth: 160,
+                fontWeight: 500,
+                opacity: 0.9,
+              }}
+            >
+              {t.name || "Unnamed traveler"}
+            </span>
+
+            {/* Preference dropdown */}
+            <select
+              value={value}
+              onChange={(e) =>
+                updatePreference(
+                  t.id,
+                  e.target.value as PreferenceValue
+                )
+              }
+              disabled={!isEditing}
+              style={{ flex: "0 0 180px" }}
+            >
+              <option value="">Select preference</option>
+              <option value="beer">Beer</option>
+              <option value="liquor">Liquor</option>
+              <option value="non-alcoholic">Non-alcoholic</option>
+            </select>
+
+            {/* Right-aligned Edit button */}
+            <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  setEditingPrefId(isEditing ? null : t.id)
+                }
+              >
+                {isEditing ? "Done" : "Edit"}
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -1399,6 +1503,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
