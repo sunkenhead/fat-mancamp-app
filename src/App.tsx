@@ -266,11 +266,11 @@ function FrontPage() {
         </p>
         <p>
           If you already know you&apos;d like to attend,{" "}
-          <strong>let Patrick know or add yourself in the Travel tab</strong>.
+          <strong>let us know or add yourself in the Travel tab</strong>.
           Early RSVPs help decide how big a place we need. You can always
           change your mind later if life happens.
         </p>
-        <p className="muted">
+        <p>
           Got questions? Reach out any time — logistics, travel, booze,
           or whether tactical naps count as official activities (they do).
         </p>
@@ -1640,6 +1640,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
