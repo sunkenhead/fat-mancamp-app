@@ -307,11 +307,11 @@ function TimelinePage() {
   /* ===== Day helpers ===== */
 
   const updateDayLabel = (dayId: string, value: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.map(d =>
+        itinerary: prev.timeline.itinerary.map((d) =>
           d.id === dayId ? { ...d, label: value } : d
         ),
       },
@@ -320,25 +320,22 @@ function TimelinePage() {
 
   const addDay = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: [
-          ...prev.timeline.itinerary,
-          { id, label: "New Day", activities: [] },
-        ],
+        itinerary: [...prev.timeline.itinerary, { id, label: "New Day", activities: [] }],
       },
     }));
     setEditingDayId(id);
   };
 
   const removeDay = (dayId: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.filter(d => d.id !== dayId),
+        itinerary: prev.timeline.itinerary.filter((d) => d.id !== dayId),
       },
     }));
     if (editingDayId === dayId) setEditingDayId(null);
@@ -346,7 +343,7 @@ function TimelinePage() {
 
   const moveDay = (from: number, to: number) => {
     if (to < 0 || to >= timeline.itinerary.length) return;
-    setState(prev => {
+    setState((prev) => {
       const arr = [...prev.timeline.itinerary];
       const [moved] = arr.splice(from, 1);
       arr.splice(to, 0, moved);
@@ -364,18 +361,15 @@ function TimelinePage() {
 
   const addActivity = (dayId: string) => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.map(d =>
+        itinerary: prev.timeline.itinerary.map((d) =>
           d.id === dayId
             ? {
                 ...d,
-                activities: [
-                  ...d.activities,
-                  { id, time: "", label: "New activity" },
-                ],
+                activities: [...d.activities, { id, time: "", label: "New activity" }],
               }
             : d
         ),
@@ -390,15 +384,15 @@ function TimelinePage() {
     field: "time" | "label",
     value: string
   ) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.map(d =>
+        itinerary: prev.timeline.itinerary.map((d) =>
           d.id === dayId
             ? {
                 ...d,
-                activities: d.activities.map(a =>
+                activities: d.activities.map((a) =>
                   a.id === activityId ? { ...a, [field]: value } : a
                 ),
               }
@@ -409,15 +403,15 @@ function TimelinePage() {
   };
 
   const removeActivity = (dayId: string, activityId: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.map(d =>
+        itinerary: prev.timeline.itinerary.map((d) =>
           d.id === dayId
             ? {
                 ...d,
-                activities: d.activities.filter(a => a.id !== activityId),
+                activities: d.activities.filter((a) => a.id !== activityId),
               }
             : d
         ),
@@ -427,11 +421,11 @@ function TimelinePage() {
   };
 
   const moveActivity = (dayId: string, from: number, to: number) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.map(d => {
+        itinerary: prev.timeline.itinerary.map((d) => {
           if (d.id !== dayId) return d;
           if (to < 0 || to >= d.activities.length) return d;
           const arr = [...d.activities];
@@ -443,7 +437,7 @@ function TimelinePage() {
     }));
   };
 
-  /* ===== Travel helpers ===== */
+  /* ===== Travel helpers + grouping ===== */
 
   const { travel } = timeline;
 
@@ -452,26 +446,26 @@ function TimelinePage() {
     field: "name" | "method" | "details",
     value: string
   ) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.map(t =>
+        travel: prev.timeline.travel.map((t) =>
           t.id === id ? { ...t, [field]: value } : t
         ),
       },
     }));
   };
 
-  const addTravel = () => {
+  const addTravel = (method: "flight" | "drive" | "other") => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
         travel: [
           ...prev.timeline.travel,
-          { id, name: "New Traveler", method: "flight", details: "" },
+          { id, name: "New Traveler", method, details: "" },
         ],
       },
     }));
@@ -479,15 +473,101 @@ function TimelinePage() {
   };
 
   const removeTravel = (id: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.filter(t => t.id !== id),
+        travel: prev.timeline.travel.filter((t) => t.id !== id),
       },
     }));
     if (editingTravelId === id) setEditingTravelId(null);
   };
+
+  const byName = (a: (typeof travel)[number], b: (typeof travel)[number]) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
+  const flyers = travel.filter((t) => t.method === "flight").slice().sort(byName);
+  const drivers = travel.filter((t) => t.method === "drive").slice().sort(byName);
+  const others = travel.filter((t) => t.method === "other").slice().sort(byName);
+
+  type TravelItem = (typeof travel)[number];
+
+  const TravelCard: React.FC<{ item: TravelItem }> = ({ item }) => {
+    const isEditing = editingTravelId === item.id;
+
+    return (
+      <div
+        className="card"
+        style={{ marginBottom: "0.6rem", padding: "0.6rem 0.75rem" }}
+      >
+        {/* Top row: name + buttons right */}
+        <div className="row" style={{ alignItems: "center" }}>
+          <input
+            value={item.name}
+            onChange={(e) => updateTravel(item.id, "name", e.target.value)}
+            placeholder="Name"
+            readOnly={!isEditing}
+            style={{
+              flex: "1 1 auto",
+              maxWidth: 220,
+              opacity: isEditing ? 1 : 0.85,
+              cursor: isEditing ? "text" : "default",
+            }}
+          />
+
+          <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() =>
+                setEditingTravelId(isEditing ? null : item.id)
+              }
+            >
+              {isEditing ? "Done" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="danger"
+              onClick={() => removeTravel(item.id)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Second row: method + details */}
+        <div className="row" style={{ marginTop: "0.4rem" }}>
+          <select
+            value={item.method}
+            onChange={(e) =>
+              updateTravel(item.id, "method", e.target.value as any)
+            }
+            disabled={!isEditing}
+            style={{ flex: "0 0 120px" }}
+          >
+            <option value="flight">Flight</option>
+            <option value="drive">Drive</option>
+            <option value="other">Other</option>
+          </select>
+          <input
+            value={item.details}
+            onChange={(e) =>
+              updateTravel(item.id, "details", e.target.value)
+            }
+            placeholder="Flight # / ETA / notes"
+            readOnly={!isEditing}
+            style={{
+              flex: "1 1 auto",
+              opacity: isEditing ? 1 : 0.85,
+              cursor: isEditing ? "text" : "default",
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  /* ===== Render ===== */
 
   return (
     <div className="card">
@@ -525,7 +605,7 @@ function TimelinePage() {
                 }}
               />
 
-              {/* Right-aligned actions */}
+              {/* Right-aligned day actions */}
               <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
                 <button
                   type="button"
@@ -606,7 +686,7 @@ function TimelinePage() {
                     }}
                   />
 
-                  {/* Right-aligned actions */}
+                  {/* Right-aligned activity actions */}
                   <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
                     <button
                       type="button"
@@ -621,9 +701,7 @@ function TimelinePage() {
                       type="button"
                       className="secondary"
                       disabled={actAtTop}
-                      onClick={() =>
-                        moveActivity(day.id, idx, idx - 1)
-                      }
+                      onClick={() => moveActivity(day.id, idx, idx - 1)}
                     >
                       ↑
                     </button>
@@ -631,18 +709,14 @@ function TimelinePage() {
                       type="button"
                       className="secondary"
                       disabled={actAtBottom}
-                      onClick={() =>
-                        moveActivity(day.id, idx, idx + 1)
-                      }
+                      onClick={() => moveActivity(day.id, idx, idx + 1)}
                     >
                       ↓
                     </button>
                     <button
                       type="button"
                       className="danger"
-                      onClick={() =>
-                        removeActivity(day.id, a.id)
-                      }
+                      onClick={() => removeActivity(day.id, a.id)}
                     >
                       ✕
                     </button>
@@ -673,89 +747,47 @@ function TimelinePage() {
         ➕ Add Day
       </button>
 
-      {/* Travel section */}
+      {/* ===== Travel sections ===== */}
       <h2 style={{ marginTop: "1.5rem" }}>Travel Plan</h2>
-      {travel.map((t) => {
-        const isEditing = editingTravelId === t.id;
 
-        return (
-          <div
-            key={t.id}
-            className="card"
-            style={{ marginBottom: "0.6rem", padding: "0.6rem 0.75rem" }}
-          >
-            {/* Top row: name + buttons aligned right */}
-            <div className="row" style={{ alignItems: "center" }}>
-              <input
-                value={t.name}
-                onChange={(e) =>
-                  updateTravel(t.id, "name", e.target.value)
-                }
-                placeholder="Name"
-                readOnly={!isEditing}
-                style={{
-                  flex: "1 1 auto",
-                  maxWidth: 220,
-                  opacity: isEditing ? 1 : 0.85,
-                  cursor: isEditing ? "text" : "default",
-                }}
-              />
+      {flyers.length > 0 && <h3>✈️ Flyers</h3>}
+      {flyers.map((t) => (
+        <TravelCard key={t.id} item={t} />
+      ))}
 
-              <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() =>
-                    setEditingTravelId(isEditing ? null : t.id)
-                  }
-                >
-                  {isEditing ? "Done" : "Edit"}
-                </button>
-                <button
-                  type="button"
-                  className="danger"
-                  onClick={() => removeTravel(t.id)}
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
+      {drivers.length > 0 && <h3>🚗 Drivers</h3>}
+      {drivers.map((t) => (
+        <TravelCard key={t.id} item={t} />
+      ))}
 
-            {/* Second row: method + details */}
-            <div className="row" style={{ marginTop: "0.4rem" }}>
-              <select
-                value={t.method}
-                onChange={(e) =>
-                  updateTravel(t.id, "method", e.target.value as any)
-                }
-                disabled={!isEditing}
-                style={{ flex: "0 0 120px" }}
-              >
-                <option value="flight">Flight</option>
-                <option value="drive">Drive</option>
-                <option value="other">Other</option>
-              </select>
-              <input
-                value={t.details}
-                onChange={(e) =>
-                  updateTravel(t.id, "details", e.target.value)
-                }
-                placeholder="Flight # / ETA / notes"
-                readOnly={!isEditing}
-                style={{
-                  flex: "1 1 auto",
-                  opacity: isEditing ? 1 : 0.85,
-                  cursor: isEditing ? "text" : "default",
-                }}
-              />
-            </div>
-          </div>
-        );
-      })}
+      {others.length > 0 && <h3>❓ Other</h3>}
+      {others.map((t) => (
+        <TravelCard key={t.id} item={t} />
+      ))}
 
-      <button type="button" className="secondary" onClick={addTravel}>
-        ➕ Add Traveler
-      </button>
+      <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => addTravel("flight")}
+        >
+          ➕ Add Flyer
+        </button>
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => addTravel("drive")}
+        >
+          ➕ Add Driver
+        </button>
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => addTravel("other")}
+        >
+          ➕ Add Other
+        </button>
+      </div>
     </div>
   );
 }
@@ -1374,6 +1406,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
