@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { CampProvider, useCamp } from "./CampContext";
+
+const THEME_KEY = "fatman_theme";
+const LIGHT_ICON_192 = "/icon-192.png";
+const DARK_ICON_192 = "/icon-192-dark.png";
+
+type PageKey = "front" | "timeline" | "food" | "booze" | "rules";
+
+/* ==========
+   ICONS
+   ========== */
+
 type IconProps = React.SVGProps<SVGSVGElement>;
 
 const baseIconProps: IconProps = {
@@ -11,6 +22,8 @@ const baseIconProps: IconProps = {
   strokeLinecap: "round",
   strokeLinejoin: "round",
 };
+
+/* Sidebar / page icons */
 
 function IconFrontPage(props: IconProps) {
   return (
@@ -76,11 +89,51 @@ function IconRules(props: IconProps) {
   );
 }
 
-const THEME_KEY = "fatman_theme";
-const LIGHT_ICON_192 = "/icon-192.png";
-const DARK_ICON_192 = "/icon-192-dark.png";
+/* Action icons: edit / up / down / delete */
 
-type PageKey = "front" | "timeline" | "food" | "booze" | "rules";
+function IconEdit(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      <path d="M5 19h14" />
+      <path d="M16.5 5.5 18.5 7.5" />
+      <path d="M7 17l8.8-8.8a1 1 0 0 1 1.4 0L18.5 9a1 1 0 0 1 0 1.4L9.7 19H7z" />
+    </svg>
+  );
+}
+
+function IconArrowUp(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      <path d="M12 5v14" />
+      <path d="M7 10l5-5 5 5" />
+    </svg>
+  );
+}
+
+function IconArrowDown(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      <path d="M12 5v14" />
+      <path d="M7 14l5 5 5-5" />
+    </svg>
+  );
+}
+
+function IconDelete(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      <path d="M5 7h14" />
+      <path d="M10 4h4a1 1 0 0 1 1 1v2H9V5a1 1 0 0 1 1-1z" />
+      <path d="M9 7v11a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V7" />
+      <path d="M11 10v6" />
+      <path d="M13 10v6" />
+    </svg>
+  );
+}
+
+/* ==========
+   APP ROOT
+   ========== */
 
 export function App() {
   return (
@@ -122,7 +175,10 @@ function Shell() {
         </button>
 
         <div className="sidebar-logo">
-          <img src={theme === "dark" ? DARK_ICON_192 : LIGHT_ICON_192} alt="Fat-Man Camp" />
+          <img
+            src={theme === "dark" ? DARK_ICON_192 : LIGHT_ICON_192}
+            alt="Fat-Man Camp"
+          />
           {!sidebarCollapsed && <span>Fat-Man Camp</span>}
         </div>
 
@@ -351,7 +407,7 @@ function FrontPage() {
         </p>
       </section>
 
-      {/* Tiny stats row for some &quot;dashboard&quot; feel */}
+      {/* Tiny stats row for some "dashboard" feel */}
       <section className="front-section front-stats">
         <div className="stat-pill">
           <span className="stat-label">Potential days</span>
@@ -597,6 +653,7 @@ function TimelinePage() {
                 setEditingTravelId(isEditing ? null : item.id)
               }
             >
+              <IconEdit />
               {isEditing ? "Done" : "Edit"}
             </button>
             <button
@@ -604,7 +661,7 @@ function TimelinePage() {
               className="danger"
               onClick={() => removeTravel(item.id)}
             >
-              ✕
+              <IconDelete />
             </button>
           </div>
         </div>
@@ -681,6 +738,7 @@ function TimelinePage() {
                     setEditingDayId(isDayEditing ? null : day.id)
                   }
                 >
+                  <IconEdit />
                   {isDayEditing ? "Done" : "Edit"}
                 </button>
                 <button
@@ -689,7 +747,7 @@ function TimelinePage() {
                   disabled={atTop}
                   onClick={() => moveDay(dayIndex, dayIndex - 1)}
                 >
-                  ↑
+                  <IconArrowUp />
                 </button>
                 <button
                   type="button"
@@ -697,14 +755,14 @@ function TimelinePage() {
                   disabled={atBottom}
                   onClick={() => moveDay(dayIndex, dayIndex + 1)}
                 >
-                  ↓
+                  <IconArrowDown />
                 </button>
                 <button
                   type="button"
                   className="danger"
                   onClick={() => removeDay(day.id)}
                 >
-                  ✕
+                  <IconDelete />
                 </button>
               </div>
             </div>
@@ -762,6 +820,7 @@ function TimelinePage() {
                         setEditingActivityId(isEditing ? null : a.id)
                       }
                     >
+                      <IconEdit />
                       {isEditing ? "Done" : "Edit"}
                     </button>
                     <button
@@ -770,7 +829,7 @@ function TimelinePage() {
                       disabled={actAtTop}
                       onClick={() => moveActivity(day.id, idx, idx - 1)}
                     >
-                      ↑
+                      <IconArrowUp />
                     </button>
                     <button
                       type="button"
@@ -778,14 +837,14 @@ function TimelinePage() {
                       disabled={actAtBottom}
                       onClick={() => moveActivity(day.id, idx, idx + 1)}
                     >
-                      ↓
+                      <IconArrowDown />
                     </button>
                     <button
                       type="button"
                       className="danger"
                       onClick={() => removeActivity(day.id, a.id)}
                     >
-                      ✕
+                      <IconDelete />
                     </button>
                   </div>
                 </div>
@@ -1013,6 +1072,7 @@ function FoodPage() {
                     setEditingMealIndex(isEditing ? null : index)
                   }
                 >
+                  <IconEdit />
                   {isEditing ? "Done" : "Edit"}
                 </button>
                 <button
@@ -1020,7 +1080,7 @@ function FoodPage() {
                   className="danger"
                   onClick={() => removeMeal(index)}
                 >
-                  ✕
+                  <IconDelete />
                 </button>
               </div>
             </div>
@@ -1112,6 +1172,7 @@ function FoodPage() {
                   setEditingSnackId(isEditing ? null : id)
                 }
               >
+                <IconEdit />
                 {isEditing ? "Done" : "Edit"}
               </button>
               <button
@@ -1119,7 +1180,7 @@ function FoodPage() {
                 className="danger"
                 onClick={() => removeSnack(id)}
               >
-                ✕
+                <IconDelete />
               </button>
             </div>
           </div>
@@ -1189,6 +1250,7 @@ function BoozePage() {
 
   const removeItem = (id: string) => {
     setState((prev) => ({
+
       ...prev,
       booze: prev.booze.filter((b: any) => b.id !== id),
     }));
@@ -1331,6 +1393,7 @@ function BoozePage() {
                   setEditingBoozeId(isEditing ? null : b.id)
                 }
               >
+                <IconEdit />
                 {isEditing ? "Done" : "Edit"}
               </button>
               <button
@@ -1338,7 +1401,7 @@ function BoozePage() {
                 className="danger"
                 onClick={() => removeItem(b.id)}
               >
-                ✕
+                <IconDelete />
               </button>
             </div>
           </div>
@@ -1415,6 +1478,7 @@ function BoozePage() {
                   setEditingPrefId(isEditing ? null : t.id)
                 }
               >
+                <IconEdit />
                 {isEditing ? "Done" : "Edit"}
               </button>
             </div>
@@ -1498,6 +1562,7 @@ function RulesPage() {
                 setEditingId(isEditing ? null : r.id)
               }
             >
+              <IconEdit />
               {isEditing ? "Done" : "Edit"}
             </button>
 
@@ -1506,7 +1571,7 @@ function RulesPage() {
               className="danger"
               onClick={() => removeRule(r.id)}
             >
-              ✕
+              <IconDelete />
             </button>
           </div>
         );
@@ -1715,4 +1780,3 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
-
