@@ -300,51 +300,53 @@ function TimelinePage() {
   const { state, setState } = useCamp();
   const { timeline } = state!;
 
-  const [editingItineraryIndex, setEditingItineraryIndex] =
-    React.useState<number | null>(null);
-  const [editingTravelId, setEditingTravelId] = React.useState<string | null>(
-    null
-  );
+  const [editingDayId, setEditingDayId] = React.useState<string | null>(null);
+  const [editingActivityId, setEditingActivityId] = React.useState<string | null>(null);
 
-  /* ---- Itinerary helpers ---- */
+  /* ===== Day helpers ===== */
 
-  const updateItineraryItem = (idx: number, value: string) => {
-    setState((prev) => ({
+  const updateDayLabel = (dayId: string, value: string) => {
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.map((item, i) =>
-          i === idx ? value : item
+        itinerary: prev.timeline.itinerary.map(d =>
+          d.id === dayId ? { ...d, label: value } : d
         ),
       },
     }));
   };
 
-  const addItineraryItem = () => {
-    setState((prev) => ({
+  const addDay = () => {
+    const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
+    const label = `New Day`;
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: [...prev.timeline.itinerary, "New itinerary item"],
+        itinerary: [
+          ...prev.timeline.itinerary,
+          { id, label, activities: [] },
+        ],
       },
     }));
-    setEditingItineraryIndex(timeline.itinerary.length);
+    setEditingDayId(id);
   };
 
-  const removeItineraryItem = (idx: number) => {
-    setState((prev) => ({
+  const removeDay = (dayId: string) => {
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        itinerary: prev.timeline.itinerary.filter((_, i) => i !== idx),
+        itinerary: prev.timeline.itinerary.filter(d => d.id !== dayId),
       },
     }));
-    if (editingItineraryIndex === idx) setEditingItineraryIndex(null);
+    if (editingDayId === dayId) setEditingDayId(null);
   };
 
-  const moveItineraryItem = (from: number, to: number) => {
+  const moveDay = (from: number, to: number) => {
     if (to < 0 || to >= timeline.itinerary.length) return;
-    setState((prev) => {
+    setState(prev => {
       const arr = [...prev.timeline.itinerary];
       const [moved] = arr.splice(from, 1);
       arr.splice(to, 0, moved);
@@ -356,24 +358,110 @@ function TimelinePage() {
         },
       };
     });
-    // Keep editing cursor on the same logical item if needed
-    if (editingItineraryIndex === from) {
-      setEditingItineraryIndex(to);
-    }
   };
 
-  /* ---- Travel helpers ---- */
+  /* ===== Activity helpers ===== */
+
+  const addActivity = (dayId: string) => {
+    const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: prev.timeline.itinerary.map(d =>
+          d.id === dayId
+            ? {
+                ...d,
+                activities: [
+                  ...d.activities,
+                  { id, time: "", label: "New activity" },
+                ],
+              }
+            : d
+        ),
+      },
+    }));
+    setEditingActivityId(id);
+  };
+
+  const updateActivity = (
+    dayId: string,
+    activityId: string,
+    field: "time" | "label",
+    value: string
+  ) => {
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: prev.timeline.itinerary.map(d =>
+          d.id === dayId
+            ? {
+                ...d,
+                activities: d.activities.map(a =>
+                  a.id === activityId ? { ...a, [field]: value } : a
+                ),
+              }
+            : d
+        ),
+      },
+    }));
+  };
+
+  const removeActivity = (dayId: string, activityId: string) => {
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: prev.timeline.itinerary.map(d =>
+          d.id === dayId
+            ? {
+                ...d,
+                activities: d.activities.filter(a => a.id !== activityId),
+              }
+            : d
+        ),
+      },
+    }));
+    if (editingActivityId === activityId) setEditingActivityId(null);
+  };
+
+  const moveActivity = (
+    dayId: string,
+    from: number,
+    to: number
+  ) => {
+    setState(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        itinerary: prev.timeline.itinerary.map(d => {
+          if (d.id !== dayId) return d;
+          if (to < 0 || to >= d.activities.length) return d;
+          const arr = [...d.activities];
+          const [moved] = arr.splice(from, 1);
+          arr.splice(to, 0, moved);
+          return { ...d, activities: arr };
+        }),
+      },
+    }));
+  };
+
+  /* ===== Travel helpers (unchanged from before) ===== */
+
+  const { travel } = timeline;
+  const [editingTravelId, setEditingTravelId] = React.useState<string | null>(null);
 
   const updateTravel = (
     id: string,
     field: "name" | "method" | "details",
     value: string
   ) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.map((t) =>
+        travel: prev.timeline.travel.map(t =>
           t.id === id ? { ...t, [field]: value } : t
         ),
       },
@@ -382,7 +470,7 @@ function TimelinePage() {
 
   const addTravel = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
@@ -396,11 +484,11 @@ function TimelinePage() {
   };
 
   const removeTravel = (id: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: prev.timeline.travel.filter((t) => t.id !== id),
+        travel: prev.timeline.travel.filter(t => t.id !== id),
       },
     }));
     if (editingTravelId === id) setEditingTravelId(null);
@@ -409,83 +497,179 @@ function TimelinePage() {
   return (
     <div className="card">
       <h2>Itinerary</h2>
-      {timeline.itinerary.map((item, idx) => {
-        const isEditing = editingItineraryIndex === idx;
-        const atTop = idx === 0;
-        const atBottom = idx === timeline.itinerary.length - 1;
+
+      {timeline.itinerary.map((day, dayIndex) => {
+        const isDayEditing = editingDayId === day.id;
+        const atTop = dayIndex === 0;
+        const atBottom = dayIndex === timeline.itinerary.length - 1;
 
         return (
-          <div
-            key={idx}
-            className="row"
-            style={{ marginBottom: "0.4rem", alignItems: "center" }}
-          >
-            <span
-              className="muted"
-              style={{ width: 24, textAlign: "right", marginRight: 4 }}
+          <div key={day.id} style={{ marginBottom: "1rem" }}>
+            {/* Day header row */}
+            <div
+              className="row"
+              style={{ marginBottom: "0.35rem", alignItems: "center" }}
             >
-              {idx + 1}.
-            </span>
-            <input
-              value={item}
-              onChange={(e) => updateItineraryItem(idx, e.target.value)}
-              placeholder={`Item ${idx + 1}`}
-              readOnly={!isEditing}
-              style={{
-                flex: "0 1 260px",
-                opacity: isEditing ? 1 : 0.85,
-                cursor: isEditing ? "text" : "default",
-              }}
-            />
+              <span
+                className="muted"
+                style={{ width: 28, textAlign: "right", marginRight: 4 }}
+              >
+                {dayIndex + 1}.
+              </span>
+              <input
+                value={day.label}
+                onChange={(e) => updateDayLabel(day.id, e.target.value)}
+                placeholder="Day label (e.g. Day 1 - 29 Oct 2025)"
+                readOnly={!isDayEditing}
+                style={{
+                  flex: "0 1 320px",
+                  opacity: isDayEditing ? 1 : 0.85,
+                  cursor: isDayEditing ? "text" : "default",
+                }}
+              />
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  setEditingDayId(isDayEditing ? null : day.id)
+                }
+              >
+                {isDayEditing ? "Done" : "Edit"}
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                disabled={atTop}
+                onClick={() => moveDay(dayIndex, dayIndex - 1)}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                disabled={atBottom}
+                onClick={() => moveDay(dayIndex, dayIndex + 1)}
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                className="danger"
+                onClick={() => removeDay(day.id)}
+              >
+                ✕
+              </button>
+            </div>
 
-            <button
-              type="button"
-              className="secondary"
-              onClick={() =>
-                setEditingItineraryIndex(isEditing ? null : idx)
-              }
-            >
-              {isEditing ? "Done" : "Edit"}
-            </button>
+            {/* Activities under this day */}
+            {day.activities.map((a, idx) => {
+              const isEditing = editingActivityId === a.id;
+              const actAtTop = idx === 0;
+              const actAtBottom = idx === day.activities.length - 1;
 
-            <button
-              type="button"
-              className="secondary"
-              disabled={atTop}
-              onClick={() => moveItineraryItem(idx, idx - 1)}
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              disabled={atBottom}
-              onClick={() => moveItineraryItem(idx, idx + 1)}
-            >
-              ↓
-            </button>
+              return (
+                <div
+                  key={a.id}
+                  className="row"
+                  style={{
+                    marginBottom: "0.3rem",
+                    marginLeft: "2rem",
+                    alignItems: "center",
+                  }}
+                >
+                  <input
+                    value={a.time}
+                    onChange={(e) =>
+                      updateActivity(day.id, a.id, "time", e.target.value)
+                    }
+                    placeholder="1200"
+                    readOnly={!isEditing}
+                    style={{
+                      flex: "0 0 70px",
+                      opacity: isEditing ? 1 : 0.85,
+                      cursor: isEditing ? "text" : "default",
+                    }}
+                  />
+                  <input
+                    value={a.label}
+                    onChange={(e) =>
+                      updateActivity(day.id, a.id, "label", e.target.value)
+                    }
+                    placeholder="Arrival"
+                    readOnly={!isEditing}
+                    style={{
+                      flex: "0 1 260px",
+                      opacity: isEditing ? 1 : 0.85,
+                      cursor: isEditing ? "text" : "default",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() =>
+                      setEditingActivityId(isEditing ? null : a.id)
+                    }
+                  >
+                    {isEditing ? "Done" : "Edit"}
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={actAtTop}
+                    onClick={() =>
+                      moveActivity(day.id, idx, idx - 1)
+                    }
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={actAtBottom}
+                    onClick={() =>
+                      moveActivity(day.id, idx, idx + 1)
+                    }
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() =>
+                      removeActivity(day.id, a.id)
+                    }
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
 
-            <button
-              type="button"
-              className="danger"
-              onClick={() => removeItineraryItem(idx)}
-            >
-              ✕
-            </button>
+            <div style={{ marginLeft: "2rem" }}>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => addActivity(day.id)}
+              >
+                ➕ Add Activity
+              </button>
+            </div>
           </div>
         );
       })}
+
       <button
         type="button"
         className="secondary"
-        onClick={addItineraryItem}
-        style={{ marginBottom: "1rem" }}
+        onClick={addDay}
+        style={{ marginTop: "0.5rem" }}
       >
-        ➕ Add Itinerary Item
+        ➕ Add Day
       </button>
 
-      <h2>Travel Plan</h2>
-      {timeline.travel.map((t) => {
+      {/* Travel section stays as before */}
+      <h2 style={{ marginTop: "1.5rem" }}>Travel Plan</h2>
+      {travel.map((t) => {
         const isEditing = editingTravelId === t.id;
         return (
           <div
@@ -495,7 +679,9 @@ function TimelinePage() {
           >
             <input
               value={t.name}
-              onChange={(e) => updateTravel(t.id, "name", e.target.value)}
+              onChange={(e) =>
+                updateTravel(t.id, "name", e.target.value)
+              }
               placeholder="Name"
               readOnly={!isEditing}
               style={{
@@ -1167,6 +1353,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
