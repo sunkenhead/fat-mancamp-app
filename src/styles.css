@@ -303,6 +303,11 @@ th, td {
   font-size: 1.1rem;
 }
 
+.sidebar-item-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
 .sidebar-item-label {
   white-space: nowrap;
 }
@@ -411,3 +416,4 @@ th, td {
 .tab-button:not(.active) .tab-icon svg {
   opacity: 0.7;
 }
+
