@@ -998,19 +998,26 @@ function FoodPage() {
 
 function BoozePage() {
   const { state, setState } = useCamp();
-  const booze = state!.booze;
-  const travelers = state!.timeline.travel;
+  const booze = state!.booze ?? [];
+  const travelers = state!.timeline.travel ?? [];
 
-  const [editingBoozeId, setEditingBoozeId] = React.useState<string | null>(null);
+  const [editingBoozeId, setEditingBoozeId] = React.useState<string | null>(
+    null
+  );
   const [editingPrefId, setEditingPrefId] = React.useState<string | null>(null);
 
   type PreferenceValue = "beer" | "liquor" | "non-alcoholic";
 
-  // Preferences state (unchanged)
-  const boozePrefs =
-    ((state as any).boozePreferences as { travelerId: string; preference: PreferenceValue }[]) ?? [];
+  // Safely read preferences even if they didn't exist in older saved state
+  const boozePrefs:
+    | { travelerId: string; preference: PreferenceValue }[]
+    | [] =
+    ((state as any).boozePreferences as {
+      travelerId: string;
+      preference: PreferenceValue;
+    }[]) ?? [];
 
-  /* === Inventory Update === */
+  /* ===== Inventory helpers ===== */
 
   const updateItem = (
     id: string,
@@ -1051,18 +1058,64 @@ function BoozePage() {
     if (editingBoozeId === id) setEditingBoozeId(null);
   };
 
+  /* ===== Preferences helpers ===== */
+
+  const updatePreference = (travelerId: string, preference: PreferenceValue) => {
+    setState((prev) => {
+      const currentPrefs:
+        | { travelerId: string; preference: PreferenceValue }[]
+        | [] = ((prev as any).boozePreferences as any[]) ?? [];
+      const idx = currentPrefs.findIndex((p) => p.travelerId === travelerId);
+      const updated = { travelerId, preference };
+      const newPrefs =
+        idx === -1
+          ? [...currentPrefs, updated]
+          : currentPrefs.map((p, i) => (i === idx ? updated : p));
+
+      return {
+        ...prev,
+        boozePreferences: newPrefs,
+      } as any;
+    });
+  };
+
+  const getPreferenceFor = (
+    travelerId: string
+  ): PreferenceValue | "" => {
+    const pref = boozePrefs.find((p) => p.travelerId === travelerId);
+    return pref?.preference ?? "";
+  };
+
   return (
     <div className="card">
       {/* ===== Inventory section ===== */}
       <h2>Booze Inventory</h2>
+
+      {/* Column headers */}
+      <div
+        className="row"
+        style={{
+          fontWeight: 600,
+          marginBottom: "0.4rem",
+          opacity: 0.85,
+        }}
+      >
+        <span style={{ flex: "0 1 140px" }}>Type</span>
+        <span style={{ flex: "0 1 180px" }}>Brand / Flavor</span>
+        <span style={{ flex: "0 1 80px" }}>Amount</span>
+        <span style={{ flex: "0 1 160px" }}>Who</span>
+      </div>
+
       {booze.map((b: any) => {
         const isEditing = editingBoozeId === b.id;
+
         return (
           <div
             key={b.id}
             className="row"
             style={{ marginBottom: "0.5rem", alignItems: "center" }}
           >
+            {/* Type */}
             <input
               value={b.type}
               onChange={(e) =>
@@ -1076,12 +1129,14 @@ function BoozePage() {
                 cursor: isEditing ? "text" : "default",
               }}
             />
+
+            {/* Brand / Flavor */}
             <input
               value={b.label}
               onChange={(e) =>
                 updateItem(b.id, "label", e.target.value)
               }
-              placeholder="Label / Brand"
+              placeholder="Brand / Flavor"
               readOnly={!isEditing}
               style={{
                 flex: "0 1 180px",
@@ -1089,6 +1144,8 @@ function BoozePage() {
                 cursor: isEditing ? "text" : "default",
               }}
             />
+
+            {/* Amount */}
             <input
               value={b.quantity}
               onChange={(e) =>
@@ -1103,8 +1160,33 @@ function BoozePage() {
               }}
             />
 
+            {/* Who */}
+            <select
+              value={b.who || ""}
+              onChange={(e) =>
+                updateItem(b.id, "who", e.target.value)
+              }
+              disabled={!isEditing}
+              style={{
+                flex: "0 1 160px",
+              }}
+            >
+              <option value="">Unknown / TBD</option>
+              {travelers.map((t) => (
+                <option key={t.id} value={t.name}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+
             {/* Right-aligned actions */}
-            <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "0.25rem",
+                marginLeft: "auto",
+              }}
+            >
               <button
                 type="button"
                 className="secondary"
@@ -1125,6 +1207,7 @@ function BoozePage() {
           </div>
         );
       })}
+
       <button type="button" className="secondary" onClick={addItem}>
         ➕ Add Item
       </button>
@@ -1136,7 +1219,9 @@ function BoozePage() {
       </p>
 
       {travelers.length === 0 && (
-        <p className="muted">No travelers yet. Add people in the Travel Plan section first.</p>
+        <p className="muted">
+          No travelers yet. Add people in the Travel Plan section first.
+        </p>
       )}
 
       {travelers.map((t) => {
@@ -1179,7 +1264,13 @@ function BoozePage() {
             </select>
 
             {/* Right-aligned Edit button */}
-            <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "0.25rem",
+                marginLeft: "auto",
+              }}
+            >
               <button
                 type="button"
                 className="secondary"
@@ -1487,6 +1578,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
