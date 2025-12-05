@@ -17,12 +17,10 @@ const baseIconProps: IconProps = {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24",
   fill: "none",
-  // Use a fixed light stroke so it stands out on dark / red buttons
-  stroke: "#f9fafb",
+  stroke: "currentColor", // <- back to currentColor so it matches button text
   strokeWidth: 1.8,
   strokeLinecap: "round",
   strokeLinejoin: "round",
-  // Default size for all icons (can still be overridden via props)
   width: 16,
   height: 16,
 };
@@ -649,22 +647,22 @@ function TimelinePage() {
             }}
           />
 
-          <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() =>
-                setEditingTravelId(isEditing ? null : item.id)
-              }
-            >
-              <IconEdit />
-              {isEditing ? "Done" : "Edit"}
-            </button>
-            <button
-              type="button"
-              className="danger"
-              onClick={() => removeTravel(item.id)}
-            >
+         <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+           <button
+             type="button"
+             className="secondary icon-circle"
+             onClick={() => setEditingDayId(isDayEditing ? null : day.id)}
+             title={isDayEditing ? "Done editing day" : "Edit day"}
+           >
+             <IconEdit />
+           </button>
+           <button
+             type="button"
+             className="secondary icon-circle"
+             disabled={atTop}
+             onClick={() => moveDay(dayIndex, dayIndex - 1)}
+             title="Move day up"
+           >
               <IconDelete />
             </button>
           </div>
@@ -734,39 +732,41 @@ function TimelinePage() {
               />
 
               {/* Right-aligned day actions */}
+              {/* Right-aligned day actions */}
               <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
                 <button
                   type="button"
-                  className="secondary"
-                  onClick={() =>
-                    setEditingDayId(isDayEditing ? null : day.id)
-                  }
+                  className="secondary icon-circle"
+                  onClick={() => setEditingDayId(isDayEditing ? null : day.id)}
+                  title={isDayEditing ? "Done editing day" : "Edit day"}
                 >
                   <IconEdit />
-                  {isDayEditing ? "Done" : "Edit"}
                 </button>
                 <button
                   type="button"
-                  className="secondary"
+                  className="secondary icon-circle"
                   disabled={atTop}
                   onClick={() => moveDay(dayIndex, dayIndex - 1)}
+                  title="Move day up"
                 >
                   <IconArrowUp />
                 </button>
                 <button
                   type="button"
-                  className="secondary"
+                  className="secondary icon-circle"
                   disabled={atBottom}
                   onClick={() => moveDay(dayIndex, dayIndex + 1)}
+                  title="Move day down"
                 >
                   <IconArrowDown />
                 </button>
                 <button
                   type="button"
-                  className="danger"
+                  className="danger icon-circle"
                   onClick={() => removeDay(day.id)}
+                  title="Delete day"
                 >
-                  <IconDelete />
+                  <IconTrash />
                 </button>
               </div>
             </div>
@@ -1784,4 +1784,5 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
