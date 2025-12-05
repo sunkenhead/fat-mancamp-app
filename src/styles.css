@@ -1,7 +1,7 @@
 :root {
   --bg: linear-gradient(135deg, #13b58a 0%, #0b8c6a 100%);
   --text: #111827;
-  --card-bg: #ffffff;
+  --card-bg: #f5f7fb;      /* softer, gives depth vs pure white */
   --card-shadow: 0 8px 20px rgba(0,0,0,0.12);
   --subtitle: #0c1b33;
   --muted: #0c1b33;
@@ -415,6 +415,23 @@ th, td {
 
 .tab-button:not(.active) .tab-icon svg {
   opacity: 0.7;
+}
+
+/* Small circular icon buttons for edit/up/down/delete */
+.icon-circle {
+  padding: 0.25rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Make sure the SVG fits nicely inside */
+.icon-circle svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 
