@@ -189,109 +189,108 @@ function SidebarItem({
 /* ===== Pages ===== */
 
 function FrontPage() {
-  const { state, setState } = useCamp();
-  const { event, timeline, booze } = state!;
-  const [editing, setEditing] = React.useState(false);
+  const { state } = useCamp();
+  const { event, timeline } = state!;
 
-  const updateEvent = (
-    field: "title" | "location" | "dates" | "heroImageUrl",
-    value: string
-  ) => {
-    setState((prev) => ({
-      ...prev,
-      event: {
-        ...prev.event,
-        [field]: value,
-      },
-    }));
-  };
-
-  const heroSrc =
-    event.heroImageUrl || "https://placehold.co/1200x500?text=Fat+Man+Camp";
+  const travelerCount = timeline.travel.length;
+  const dayCount = timeline.itinerary.length;
+  const hasDates = !!event.dates;
 
   return (
-    <div className="card">
-      <img
-        src={heroSrc}
-        alt="Fat Man Camp hero"
-        style={{ width: "100%", borderRadius: 12, marginBottom: "0.75rem" }}
-      />
+    <div className="card front-page">
+      {/* Hero image */}
+      {event.heroImageUrl && (
+        <div className="hero-wrapper">
+          <img
+            src={event.heroImageUrl}
+            alt="Fat Man Camp 2026 near Deadwood, South Dakota"
+            className="hero-image"
+          />
+        </div>
+      )}
 
-      <div className="row" style={{ marginBottom: "0.5rem" }}>
-        <input
-          value={event.title}
-          onChange={(e) => updateEvent("title", e.target.value)}
-          placeholder="Event title"
-          readOnly={!editing}
-          style={{
-            flex: "0 1 260px",
-            opacity: editing ? 1 : 0.85,
-            cursor: editing ? "text" : "default",
-          }}
-        />
-        <button
-          type="button"
-          className="secondary"
-          onClick={() => setEditing((e) => !e)}
-        >
-          {editing ? "Done" : "Edit"}
-        </button>
-      </div>
-
-      <div className="row" style={{ marginBottom: "0.5rem" }}>
-        <input
-          value={event.location}
-          onChange={(e) => updateEvent("location", e.target.value)}
-          placeholder="Location"
-          readOnly={!editing}
-          style={{
-            opacity: editing ? 1 : 0.85,
-            cursor: editing ? "text" : "default",
-          }}
-        />
-        <input
-          value={event.dates}
-          onChange={(e) => updateEvent("dates", e.target.value)}
-          placeholder="Dates"
-          readOnly={!editing}
-          style={{
-            opacity: editing ? 1 : 0.85,
-            cursor: editing ? "text" : "default",
-          }}
-        />
-      </div>
-
-      <div className="row" style={{ marginBottom: "0.4rem" }}>
-        <input
-          value={event.heroImageUrl}
-          onChange={(e) => updateEvent("heroImageUrl", e.target.value)}
-          placeholder="Hero image URL"
-          readOnly={!editing}
-          style={{
-            opacity: editing ? 1 : 0.85,
-            cursor: editing ? "text" : "default",
-          }}
-        />
-      </div>
-
-      <p className="muted" style={{ marginBottom: "0.75rem" }}>
-        Edit to customize title, dates, and banner image. Paste any public image URL.
+      {/* Title + meta */}
+      <h1 className="front-title">{event.title || "Fat Man Camp 2026"}</h1>
+      <p className="front-meta">
+        {event.location || "Near Deadwood, South Dakota"}
+        {hasDates && " · "}
+        {event.dates || "Early October 2026 (exact dates TBD)"}
       </p>
 
-      <div className="row">
-        <span className="pill">
-          🕒 {timeline.itinerary.length} itinerary item
-          {timeline.itinerary.length === 1 ? "" : "s"}
-        </span>
-        <span className="pill">
-          ✈️ {timeline.travel.length} traveler
-          {timeline.travel.length === 1 ? "" : "s"}
-        </span>
-        <span className="pill">
-          🥃 {booze.length} booze item
-          {booze.length === 1 ? "" : "s"}
-        </span>
-      </div>
+      {/* Main copy – cleaned up version of your email */}
+      <section className="front-section">
+        <h3>Welcome</h3>
+        <p>
+          Hello everyone. This is the first look at{" "}
+          <strong>Fat Man Camp 2026</strong>. We&apos;re still about a year
+          out, but sharing the plan early gives everyone a chance to mark
+          their calendars and start scheming.
+        </p>
+        <p>
+          This camp will be held near <strong>Deadwood, South Dakota</strong>{" "}
+          and will be piggy-backed on the tail end of{" "}
+          <strong>Wild West Hackin&apos; Fest (WWHF)</strong> next October.
+          WWHF usually runs during the week; Fat Man Camp will pick up on the{" "}
+          following weekend.
+        </p>
+      </section>
+
+      <section className="front-section">
+        <h3>The Rough Plan</h3>
+        <ul className="front-list">
+          <li>
+            <strong>When:</strong> Early October 2026 (exact dates TBD; usually
+            the weekend after WWHF).
+          </li>
+          <li>
+            <strong>Where:</strong> A rented spot near Deadwood, SD.
+          </li>
+          <li>
+            <strong>How:</strong> Folks can use training budget / TDY funds for
+            WWHF travel, then take PTO/leave en-route to roll right into Fat
+            Man Camp.
+          </li>
+          <li>
+            <strong>Cost:</strong> Final cost depends on headcount and the
+            place we book; that usually locks in about six months out.
+          </li>
+        </ul>
+      </section>
+
+      <section className="front-section front-status">
+        <h3>Status & RSVP</h3>
+        <p>
+          Exact <strong>dates, location, and total cost</strong> are still up
+          in the air. Those details will firm up once we&apos;re about six
+          months out and we know how many people are coming.
+        </p>
+        <p>
+          If you already know you&apos;d like to attend,{" "}
+          <strong>let Patrick know or add yourself in the Travel tab</strong>.
+          Early RSVPs help decide how big a place we need. You can always
+          change your mind later if life happens.
+        </p>
+        <p className="muted">
+          Got questions? Reach out any time — logistics, travel, booze,
+          or whether tactical naps count as official activities (they do).
+        </p>
+      </section>
+
+      {/* Tiny stats row for some &quot;dashboard&quot; feel */}
+      <section className="front-section front-stats">
+        <div className="stat-pill">
+          <span className="stat-label">Potential days</span>
+          <span className="stat-value">
+            {dayCount > 0 ? dayCount : "TBD"}
+          </span>
+        </div>
+        <div className="stat-pill">
+          <span className="stat-label">People in travel plan</span>
+          <span className="stat-value">
+            {travelerCount > 0 ? travelerCount : "0 so far"}
+          </span>
+        </div>
+      </section>
     </div>
   );
 }
@@ -1641,6 +1640,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
