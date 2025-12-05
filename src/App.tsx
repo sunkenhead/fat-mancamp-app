@@ -1006,15 +1006,15 @@ function BoozePage() {
 
   type PreferenceValue = "beer" | "liquor" | "non-alcoholic";
 
-  // Safely read preferences even if the field didn't exist before
-  const boozePrefs: { travelerId: string; preference: PreferenceValue }[] =
-    ((state as any).boozePreferences as
-      | { travelerId: string; preference: PreferenceValue }[]
-      | undefined) ?? [];
+  // Preferences state (unchanged)
+  const boozePrefs =
+    ((state as any).boozePreferences as { travelerId: string; preference: PreferenceValue }[]) ?? [];
+
+  /* === Inventory Update === */
 
   const updateItem = (
     id: string,
-    field: "type" | "label" | "quantity",
+    field: "type" | "label" | "quantity" | "who",
     value: string
   ) => {
     setState((prev) => ({
@@ -1031,7 +1031,13 @@ function BoozePage() {
       ...prev,
       booze: [
         ...prev.booze,
-        { id, type: "Whiskey", label: "New Bottle", quantity: "1" },
+        {
+          id,
+          type: "Whiskey",
+          label: "New Bottle",
+          quantity: "1",
+          who: "",
+        },
       ],
     }));
     setEditingBoozeId(id);
@@ -1043,28 +1049,6 @@ function BoozePage() {
       booze: prev.booze.filter((b: any) => b.id !== id),
     }));
     if (editingBoozeId === id) setEditingBoozeId(null);
-  };
-
-  const updatePreference = (travelerId: string, preference: PreferenceValue) => {
-    setState((prev) => {
-      const currentPrefs: { travelerId: string; preference: PreferenceValue }[] =
-        ((prev as any).boozePreferences as any[]) ?? [];
-      const idx = currentPrefs.findIndex((p) => p.travelerId === travelerId);
-      const updatedPref = { travelerId, preference };
-      const newPrefs =
-        idx === -1
-          ? [...currentPrefs, updatedPref]
-          : currentPrefs.map((p, i) => (i === idx ? updatedPref : p));
-      return {
-        ...prev,
-        boozePreferences: newPrefs,
-      } as any;
-    });
-  };
-
-  const getPreferenceFor = (travelerId: string): PreferenceValue | "" => {
-    const pref = boozePrefs.find((p) => p.travelerId === travelerId);
-    return pref?.preference ?? "";
   };
 
   return (
@@ -1503,6 +1487,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
