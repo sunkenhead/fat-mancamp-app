@@ -306,6 +306,8 @@ function TimelinePage() {
     null
   );
 
+  /* ---- Itinerary helpers ---- */
+
   const updateItineraryItem = (idx: number, value: string) => {
     setState((prev) => ({
       ...prev,
@@ -339,6 +341,28 @@ function TimelinePage() {
     }));
     if (editingItineraryIndex === idx) setEditingItineraryIndex(null);
   };
+
+  const moveItineraryItem = (from: number, to: number) => {
+    if (to < 0 || to >= timeline.itinerary.length) return;
+    setState((prev) => {
+      const arr = [...prev.timeline.itinerary];
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      return {
+        ...prev,
+        timeline: {
+          ...prev.timeline,
+          itinerary: arr,
+        },
+      };
+    });
+    // Keep editing cursor on the same logical item if needed
+    if (editingItineraryIndex === from) {
+      setEditingItineraryIndex(to);
+    }
+  };
+
+  /* ---- Travel helpers ---- */
 
   const updateTravel = (
     id: string,
@@ -387,6 +411,9 @@ function TimelinePage() {
       <h2>Itinerary</h2>
       {timeline.itinerary.map((item, idx) => {
         const isEditing = editingItineraryIndex === idx;
+        const atTop = idx === 0;
+        const atBottom = idx === timeline.itinerary.length - 1;
+
         return (
           <div
             key={idx}
@@ -410,6 +437,7 @@ function TimelinePage() {
                 cursor: isEditing ? "text" : "default",
               }}
             />
+
             <button
               type="button"
               className="secondary"
@@ -419,6 +447,24 @@ function TimelinePage() {
             >
               {isEditing ? "Done" : "Edit"}
             </button>
+
+            <button
+              type="button"
+              className="secondary"
+              disabled={atTop}
+              onClick={() => moveItineraryItem(idx, idx - 1)}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={atBottom}
+              onClick={() => moveItineraryItem(idx, idx + 1)}
+            >
+              ↓
+            </button>
+
             <button
               type="button"
               className="danger"
@@ -1121,6 +1167,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
