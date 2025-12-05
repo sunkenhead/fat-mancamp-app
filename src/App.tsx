@@ -17,10 +17,14 @@ const baseIconProps: IconProps = {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24",
   fill: "none",
-  stroke: "currentColor",
+  // Use a fixed light stroke so it stands out on dark / red buttons
+  stroke: "#f9fafb",
   strokeWidth: 1.8,
   strokeLinecap: "round",
   strokeLinejoin: "round",
+  // Default size for all icons (can still be overridden via props)
+  width: 16,
+  height: 16,
 };
 
 /* Sidebar / page icons */
@@ -1780,3 +1784,4 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
