@@ -1,5 +1,80 @@
 import React, { useEffect, useState } from "react";
 import { CampProvider, useCamp } from "./CampContext";
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+const baseIconProps: IconProps = {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+function IconFrontPage(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      {/* Simple cabin / house */}
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6.5 11.5V19a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-7.5" />
+      <path d="M10.5 20v-5.5h3V20" />
+    </svg>
+  );
+}
+
+function IconTimeline(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      {/* Clock + small timeline ticks */}
+      <circle cx="12" cy="10" r="5" />
+      <path d="M12 10V7.5" />
+      <path d="M12 10l2 1.5" />
+      <path d="M5 18h4" />
+      <path d="M15 18h4" />
+    </svg>
+  );
+}
+
+function IconFood(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      {/* Fork */}
+      <path d="M6 4v6" />
+      <path d="M4.5 4v3" />
+      <path d="M7.5 4v3" />
+      <path d="M6 10v7" />
+      {/* Plate + knife */}
+      <circle cx="15" cy="11" r="3.5" />
+      <path d="M19.5 4v13" />
+    </svg>
+  );
+}
+
+function IconBooze(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      {/* Bottle neck */}
+      <path d="M11 3.5h2v2.5h-2z" />
+      {/* Bottle body */}
+      <path d="M10 6h4l.8 2.5v8a2 2 0 0 1-2 2h-1.6a2 2 0 0 1-2-2v-8z" />
+      {/* Fill line */}
+      <path d="M10.2 11h3.6" />
+    </svg>
+  );
+}
+
+function IconRules(props: IconProps) {
+  return (
+    <svg {...baseIconProps} {...props}>
+      {/* Scroll / page */}
+      <path d="M7 5h8a2 2 0 0 1 2 2v11H9a2 2 0 0 1-2-2z" />
+      <path d="M7 5a2 2 0 0 0-2 2v10" />
+      <path d="M10 9h5" />
+      <path d="M10 12h4" />
+    </svg>
+  );
+}
 
 const THEME_KEY = "fatman_theme";
 const LIGHT_ICON_192 = "/icon-192.png";
@@ -53,35 +128,35 @@ function Shell() {
 
         <nav className="sidebar-nav">
           <SidebarItem
-            icon="🏕️"
+            icon={<IconFrontPage />}
             label="Front Page"
             active={page === "front"}
             collapsed={sidebarCollapsed}
             onClick={() => setPage("front")}
           />
           <SidebarItem
-            icon="🕒"
+            icon={<IconTimeline />}
             label="Timeline"
             active={page === "timeline"}
             collapsed={sidebarCollapsed}
             onClick={() => setPage("timeline")}
           />
           <SidebarItem
-            icon="🍳"
+            icon={<IconFood />}
             label="Food Plan"
             active={page === "food"}
             collapsed={sidebarCollapsed}
             onClick={() => setPage("food")}
           />
           <SidebarItem
-            icon="🥃"
+            icon={<IconBooze />}
             label="Booze"
             active={page === "booze"}
             collapsed={sidebarCollapsed}
             onClick={() => setPage("booze")}
           />
           <SidebarItem
-            icon="📜"
+            icon={<IconRules />}
             label="Notes / Rules"
             active={page === "rules"}
             collapsed={sidebarCollapsed}
@@ -160,7 +235,7 @@ function Shell() {
 /* ===== Sidebar components ===== */
 
 type SidebarItemProps = {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   active: boolean;
   collapsed: boolean;
@@ -1640,3 +1715,4 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
