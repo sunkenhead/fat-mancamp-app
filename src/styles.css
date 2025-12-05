@@ -313,3 +313,77 @@ th, td {
   justify-content: center;
 }
 
+.front-page {
+  padding: 1.25rem;
+}
+
+.hero-wrapper {
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.hero-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.front-title {
+  font-size: 2rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.front-meta {
+  margin: 0 0 1rem 0;
+  opacity: 0.85;
+}
+
+.front-section {
+  margin-top: 1rem;
+}
+
+.front-section h3 {
+  margin-bottom: 0.4rem;
+}
+
+.front-list {
+  padding-left: 1.2rem;
+  margin: 0.4rem 0 0.2rem 0;
+}
+
+.front-status {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.front-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.stat-pill {
+  padding: 0.5rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 160px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
