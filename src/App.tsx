@@ -7,135 +7,7 @@ const DARK_ICON_192 = "/icon-192-dark.png";
 
 type PageKey = "front" | "timeline" | "food" | "booze" | "rules";
 
-/* ==========
-   ICONS
-   ========== */
-
-type IconProps = React.SVGProps<SVGSVGElement>;
-
-const baseIconProps: IconProps = {
-  xmlns: "http://www.w3.org/2000/svg",
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor", // <- back to currentColor so it matches button text
-  strokeWidth: 1.8,
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-  width: 16,
-  height: 16,
-};
-
-/* Sidebar / page icons */
-
-function IconFrontPage(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      {/* Simple cabin / house */}
-      <path d="M4 11.5 12 4l8 7.5" />
-      <path d="M6.5 11.5V19a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-7.5" />
-      <path d="M10.5 20v-5.5h3V20" />
-    </svg>
-  );
-}
-
-function IconTimeline(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      {/* Clock + small timeline ticks */}
-      <circle cx="12" cy="10" r="5" />
-      <path d="M12 10V7.5" />
-      <path d="M12 10l2 1.5" />
-      <path d="M5 18h4" />
-      <path d="M15 18h4" />
-    </svg>
-  );
-}
-
-function IconFood(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      {/* Fork */}
-      <path d="M6 4v6" />
-      <path d="M4.5 4v3" />
-      <path d="M7.5 4v3" />
-      <path d="M6 10v7" />
-      {/* Plate + knife */}
-      <circle cx="15" cy="11" r="3.5" />
-      <path d="M19.5 4v13" />
-    </svg>
-  );
-}
-
-function IconBooze(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      {/* Bottle neck */}
-      <path d="M11 3.5h2v2.5h-2z" />
-      {/* Bottle body */}
-      <path d="M10 6h4l.8 2.5v8a2 2 0 0 1-2 2h-1.6a2 2 0 0 1-2-2v-8z" />
-      {/* Fill line */}
-      <path d="M10.2 11h3.6" />
-    </svg>
-  );
-}
-
-function IconRules(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      {/* Scroll / page */}
-      <path d="M7 5h8a2 2 0 0 1 2 2v11H9a2 2 0 0 1-2-2z" />
-      <path d="M7 5a2 2 0 0 0-2 2v10" />
-      <path d="M10 9h5" />
-      <path d="M10 12h4" />
-    </svg>
-  );
-}
-
-/* Action icons: edit / up / down / delete */
-
-function IconEdit(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      <path d="M5 19h14" />
-      <path d="M16.5 5.5 18.5 7.5" />
-      <path d="M7 17l8.8-8.8a1 1 0 0 1 1.4 0L18.5 9a1 1 0 0 1 0 1.4L9.7 19H7z" />
-    </svg>
-  );
-}
-
-function IconArrowUp(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      <path d="M12 5v14" />
-      <path d="M7 10l5-5 5 5" />
-    </svg>
-  );
-}
-
-function IconArrowDown(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      <path d="M12 5v14" />
-      <path d="M7 14l5 5 5-5" />
-    </svg>
-  );
-}
-
-function IconDelete(props: IconProps) {
-  return (
-    <svg {...baseIconProps} {...props}>
-      <path d="M5 7h14" />
-      <path d="M10 4h4a1 1 0 0 1 1 1v2H9V5a1 1 0 0 1 1-1z" />
-      <path d="M9 7v11a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V7" />
-      <path d="M11 10v6" />
-      <path d="M13 10v6" />
-    </svg>
-  );
-}
-
-/* ==========
-   APP ROOT
-   ========== */
+/* ========= Root App ========= */
 
 export function App() {
   return (
@@ -144,6 +16,97 @@ export function App() {
     </CampProvider>
   );
 }
+
+/* ========= Shared SVG icon plumbing ========= */
+
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+const baseIconProps: IconProps = {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  width: 16,
+  height: 16,
+};
+
+const IconHome: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M4 11.5 12 4l8 7.5" />
+    <path d="M7 10.5V20h10v-9.5" />
+  </svg>
+);
+
+const IconTimeline: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <circle cx="6" cy="7" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="18" cy="17" r="2" />
+    <path d="M8 7h4" />
+    <path d="M14 12h4" />
+    <path d="M10 17h4" />
+  </svg>
+);
+
+const IconFood: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M6 3v10" />
+    <path d="M10 3v10" />
+    <path d="M6 8h4" />
+    <path d="M14 4h4l-1 9h-2z" />
+    <path d="M15 13h3" />
+  </svg>
+);
+
+const IconBottle: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M10 2h4v3l1 2.5c.3.7.5 1.4.5 2.1V19a3 3 0 0 1-3 3h-1a3 3 0 0 1-3-3v-9.4c0-.7.2-1.4.5-2.1L10 5z" />
+    <path d="M10 7h4" />
+  </svg>
+);
+
+const IconRules: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M6 4h10a2 2 0 0 1 2 2v13l-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2z" />
+    <path d="M9 8h6" />
+    <path d="M9 12h4" />
+  </svg>
+);
+
+const IconEdit: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M4 20h4l9.5-9.5a1.5 1.5 0 0 0-2.1-2.1L6 17.9 4 20z" />
+  </svg>
+);
+
+const IconArrowUp: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M12 5v14" />
+    <path d="M7 10l5-5 5 5" />
+  </svg>
+);
+
+const IconArrowDown: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M12 5v14" />
+    <path d="M7 14l5 5 5-5" />
+  </svg>
+);
+
+const IconTrash: React.FC<IconProps> = (props) => (
+  <svg {...baseIconProps} {...props}>
+    <path d="M4 7h16" />
+    <path d="M9 4h6l-1 2H10z" />
+    <path d="M9 11v6" />
+    <path d="M15 11v6" />
+    <path d="M6 7h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" />
+  </svg>
+);
+
+/* ========= Layout Shell ========= */
 
 function Shell() {
   const { state, loading, saving, save } = useCamp();
@@ -186,7 +149,7 @@ function Shell() {
 
         <nav className="sidebar-nav">
           <SidebarItem
-            icon={<IconFrontPage />}
+            icon={<IconHome />}
             label="Front Page"
             active={page === "front"}
             collapsed={sidebarCollapsed}
@@ -207,7 +170,7 @@ function Shell() {
             onClick={() => setPage("food")}
           />
           <SidebarItem
-            icon={<IconBooze />}
+            icon={<IconBottle />}
             label="Booze"
             active={page === "booze"}
             collapsed={sidebarCollapsed}
@@ -223,7 +186,7 @@ function Shell() {
         </nav>
       </aside>
 
-      {/* Main content */}
+      {/* Main */}
       <div className="main-area">
         <div className="app">
           {/* Top bar */}
@@ -238,8 +201,8 @@ function Shell() {
               <div>
                 <h1>Fat Man Camp</h1>
                 <div className="subtitle">
-                  Annual reunion of active & retired mischief, way too much food, and war
-                  stories.
+                  Annual reunion of active & retired mischief, way too much
+                  food, and war stories.
                 </div>
               </div>
             </div>
@@ -282,6 +245,7 @@ function Shell() {
           {page === "booze" && <BoozePage />}
           {page === "rules" && <RulesPage />}
 
+          {/* For now, still at bottom; later we can move these to an Admin page */}
           <SettingsCard />
           <BackupCard />
         </div>
@@ -290,7 +254,7 @@ function Shell() {
   );
 }
 
-/* ===== Sidebar components ===== */
+/* ========= Sidebar components ========= */
 
 type SidebarItemProps = {
   icon: React.ReactNode;
@@ -300,18 +264,13 @@ type SidebarItemProps = {
   onClick: () => void;
 };
 
-function SidebarItem({
-  icon,
-  label,
-  active,
-  collapsed,
-  onClick,
-}: SidebarItemProps) {
+function SidebarItem({ icon, label, active, collapsed, onClick }: SidebarItemProps) {
   return (
     <button
       type="button"
       className={`sidebar-item ${active ? "active" : ""}`}
       onClick={onClick}
+      title={label}
     >
       <span className="sidebar-item-icon">{icon}</span>
       {!collapsed && <span className="sidebar-item-label">{label}</span>}
@@ -319,7 +278,7 @@ function SidebarItem({
   );
 }
 
-/* ===== Pages ===== */
+/* ========= Pages ========= */
 
 function FrontPage() {
   const { state } = useCamp();
@@ -350,20 +309,19 @@ function FrontPage() {
         {event.dates || "Early October 2026 (exact dates TBD)"}
       </p>
 
-      {/* Main copy – cleaned up version of your email */}
       <section className="front-section">
         <h3>Welcome</h3>
         <p>
           Hello everyone. This is the first look at{" "}
-          <strong>Fat Man Camp 2026</strong>. We&apos;re still about a year
-          out, but sharing the plan early gives everyone a chance to mark
-          their calendars and start scheming.
+          <strong>Fat Man Camp 2026</strong>. We&apos;re still about a year out,
+          but sharing the plan early gives everyone a chance to mark their
+          calendars and start scheming.
         </p>
         <p>
           This camp will be held near <strong>Deadwood, South Dakota</strong>{" "}
           and will be piggy-backed on the tail end of{" "}
-          <strong>Wild West Hackin&apos; Fest (WWHF)</strong> next October.
-          WWHF usually runs during the week; Fat Man Camp will pick up on the{" "}
+          <strong>Wild West Hackin&apos; Fest (WWHF)</strong> next October. WWHF
+          usually runs during the week; Fat Man Camp will pick up on the
           following weekend.
         </p>
       </section>
@@ -380,12 +338,12 @@ function FrontPage() {
           </li>
           <li>
             <strong>How:</strong> Folks can use training budget / TDY funds for
-            WWHF travel, then take PTO/leave en-route to roll right into Fat
-            Man Camp.
+            WWHF travel, then take PTO/leave en-route to roll right into Fat Man
+            Camp.
           </li>
           <li>
-            <strong>Cost:</strong> Final cost depends on headcount and the
-            place we book; that usually locks in about six months out.
+            <strong>Cost:</strong> Final cost depends on headcount and the place
+            we book; that usually locks in about six months out.
           </li>
         </ul>
       </section>
@@ -393,29 +351,26 @@ function FrontPage() {
       <section className="front-section front-status">
         <h3>Status & RSVP</h3>
         <p>
-          Exact <strong>dates, location, and total cost</strong> are still up
-          in the air. Those details will firm up once we&apos;re about six
-          months out and we know how many people are coming.
+          Exact <strong>dates, location, and total cost</strong> are still up in
+          the air. Those details will firm up once we&apos;re about six months
+          out and we know how many people are coming.
         </p>
         <p>
           If you already know you&apos;d like to attend,{" "}
-          <strong>let us know or add yourself in the Travel tab</strong>.
-          Early RSVPs help decide how big a place we need. You can always
-          change your mind later if life happens.
+          <strong>let us know or add yourself in the Travel tab</strong>. Early
+          RSVPs help decide how big a place we need. You can always change your
+          mind later if life happens.
         </p>
         <p>
-          Got questions? Reach out any time — logistics, travel, booze,
-          or whether tactical naps count as official activities (they do).
+          Got questions? Reach out any time — logistics, travel, booze, or
+          whether tactical naps count as official activities (they do).
         </p>
       </section>
 
-      {/* Tiny stats row for some "dashboard" feel */}
       <section className="front-section front-stats">
         <div className="stat-pill">
           <span className="stat-label">Potential days</span>
-          <span className="stat-value">
-            {dayCount > 0 ? dayCount : "TBD"}
-          </span>
+          <span className="stat-value">{dayCount > 0 ? dayCount : "TBD"}</span>
         </div>
         <div className="stat-pill">
           <span className="stat-label">People in travel plan</span>
@@ -428,6 +383,8 @@ function FrontPage() {
   );
 }
 
+/* ---- Timeline Page ---- */
+
 function TimelinePage() {
   const { state, setState } = useCamp();
   const { timeline } = state!;
@@ -436,7 +393,7 @@ function TimelinePage() {
   const [editingActivityId, setEditingActivityId] = React.useState<string | null>(null);
   const [editingTravelId, setEditingTravelId] = React.useState<string | null>(null);
 
-  /* ===== Day helpers ===== */
+  /* Day helpers */
 
   const updateDayLabel = (dayId: string, value: string) => {
     setState((prev) => ({
@@ -489,7 +446,7 @@ function TimelinePage() {
     });
   };
 
-  /* ===== Activity helpers ===== */
+  /* Activity helpers */
 
   const addActivity = (dayId: string) => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
@@ -569,15 +526,11 @@ function TimelinePage() {
     }));
   };
 
-  /* ===== Travel helpers + grouping ===== */
+  /* Travel helpers */
 
   const { travel } = timeline;
 
-  const updateTravel = (
-    id: string,
-    field: "name" | "method" | "details",
-    value: string
-  ) => {
+  const updateTravel = (id: string, field: "name" | "method" | "details", value: string) => {
     setState((prev) => ({
       ...prev,
       timeline: {
@@ -595,10 +548,7 @@ function TimelinePage() {
       ...prev,
       timeline: {
         ...prev.timeline,
-        travel: [
-          ...prev.timeline.travel,
-          { id, name: "New Traveler", method, details: "" },
-        ],
+        travel: [...prev.timeline.travel, { id, name: "New Traveler", method, details: "" }],
       },
     }));
     setEditingTravelId(id);
@@ -628,10 +578,7 @@ function TimelinePage() {
     const isEditing = editingTravelId === item.id;
 
     return (
-      <div
-        className="card"
-        style={{ marginBottom: "0.6rem", padding: "0.6rem 0.75rem" }}
-      >
+      <div className="card" style={{ marginBottom: "0.6rem", padding: "0.6rem 0.75rem" }}>
         {/* Top row: name + buttons right */}
         <div className="row" style={{ alignItems: "center" }}>
           <input
@@ -647,23 +594,22 @@ function TimelinePage() {
             }}
           />
 
-         <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
-           <button
-             type="button"
-             className="secondary icon-circle"
-             onClick={() => setEditingDayId(isDayEditing ? null : day.id)}
-             title={isDayEditing ? "Done editing day" : "Edit day"}
-           >
-             <IconEdit />
-           </button>
-           <button
-             type="button"
-             className="secondary icon-circle"
-             disabled={atTop}
-             onClick={() => moveDay(dayIndex, dayIndex - 1)}
-             title="Move day up"
-           >
-              <IconDelete />
+          <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+            <button
+              type="button"
+              className="secondary icon-circle"
+              onClick={() => setEditingTravelId(isEditing ? null : item.id)}
+              title={isEditing ? "Done editing traveler" : "Edit traveler"}
+            >
+              <IconEdit />
+            </button>
+            <button
+              type="button"
+              className="danger icon-circle"
+              onClick={() => removeTravel(item.id)}
+              title="Remove traveler"
+            >
+              <IconTrash />
             </button>
           </div>
         </div>
@@ -672,9 +618,7 @@ function TimelinePage() {
         <div className="row" style={{ marginTop: "0.4rem" }}>
           <select
             value={item.method}
-            onChange={(e) =>
-              updateTravel(item.id, "method", e.target.value as any)
-            }
+            onChange={(e) => updateTravel(item.id, "method", e.target.value as any)}
             disabled={!isEditing}
             style={{ flex: "0 0 120px" }}
           >
@@ -684,9 +628,7 @@ function TimelinePage() {
           </select>
           <input
             value={item.details}
-            onChange={(e) =>
-              updateTravel(item.id, "details", e.target.value)
-            }
+            onChange={(e) => updateTravel(item.id, "details", e.target.value)}
             placeholder="Flight # / ETA / notes"
             readOnly={!isEditing}
             style={{
@@ -700,7 +642,7 @@ function TimelinePage() {
     );
   };
 
-  /* ===== Render ===== */
+  /* Render */
 
   return (
     <div className="card">
@@ -714,10 +656,7 @@ function TimelinePage() {
         return (
           <div key={day.id} style={{ marginBottom: "1rem" }}>
             {/* Day header row */}
-            <div
-              className="row"
-              style={{ marginBottom: "0.35rem", alignItems: "center" }}
-            >
+            <div className="row" style={{ marginBottom: "0.35rem", alignItems: "center" }}>
               <input
                 value={day.label}
                 onChange={(e) => updateDayLabel(day.id, e.target.value)}
@@ -731,7 +670,6 @@ function TimelinePage() {
                 }}
               />
 
-              {/* Right-aligned day actions */}
               {/* Right-aligned day actions */}
               <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
                 <button
@@ -771,7 +709,7 @@ function TimelinePage() {
               </div>
             </div>
 
-            {/* Activities under this day */}
+            {/* Activities */}
             {day.activities.map((a, idx) => {
               const isEditing = editingActivityId === a.id;
               const actAtTop = idx === 0;
@@ -789,9 +727,7 @@ function TimelinePage() {
                 >
                   <input
                     value={a.time}
-                    onChange={(e) =>
-                      updateActivity(day.id, a.id, "time", e.target.value)
-                    }
+                    onChange={(e) => updateActivity(day.id, a.id, "time", e.target.value)}
                     placeholder="1200"
                     readOnly={!isEditing}
                     style={{
@@ -802,9 +738,7 @@ function TimelinePage() {
                   />
                   <input
                     value={a.label}
-                    onChange={(e) =>
-                      updateActivity(day.id, a.id, "label", e.target.value)
-                    }
+                    onChange={(e) => updateActivity(day.id, a.id, "label", e.target.value)}
                     placeholder="Arrival"
                     readOnly={!isEditing}
                     style={{
@@ -819,36 +753,39 @@ function TimelinePage() {
                   <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
                     <button
                       type="button"
-                      className="secondary"
+                      className="secondary icon-circle"
                       onClick={() =>
                         setEditingActivityId(isEditing ? null : a.id)
                       }
+                      title={isEditing ? "Done editing activity" : "Edit activity"}
                     >
                       <IconEdit />
-                      {isEditing ? "Done" : "Edit"}
                     </button>
                     <button
                       type="button"
-                      className="secondary"
+                      className="secondary icon-circle"
                       disabled={actAtTop}
                       onClick={() => moveActivity(day.id, idx, idx - 1)}
+                      title="Move activity up"
                     >
                       <IconArrowUp />
                     </button>
                     <button
                       type="button"
-                      className="secondary"
+                      className="secondary icon-circle"
                       disabled={actAtBottom}
                       onClick={() => moveActivity(day.id, idx, idx + 1)}
+                      title="Move activity down"
                     >
                       <IconArrowDown />
                     </button>
                     <button
                       type="button"
-                      className="danger"
+                      className="danger icon-circle"
                       onClick={() => removeActivity(day.id, a.id)}
+                      title="Delete activity"
                     >
-                      <IconDelete />
+                      <IconTrash />
                     </button>
                   </div>
                 </div>
@@ -877,7 +814,7 @@ function TimelinePage() {
         ➕ Add Day
       </button>
 
-      {/* ===== Travel sections ===== */}
+      {/* Travel sections */}
       <h2 style={{ marginTop: "1.5rem" }}>Travel Plan</h2>
 
       {flyers.length > 0 && <h3>✈️ Flyers</h3>}
@@ -922,20 +859,16 @@ function TimelinePage() {
   );
 }
 
+/* ---- Food Page ---- */
+
 function FoodPage() {
   const { state, setState } = useCamp();
   const food = state!.food;
   const meals = food.meals ?? [];
   const snacks = food.snacks ?? [];
 
-  const [editingMealIndex, setEditingMealIndex] = React.useState<number | null>(
-    null
-  );
-  const [editingSnackId, setEditingSnackId] = React.useState<string | null>(
-    null
-  );
-
-  /* ===== Meal Helpers ===== */
+  const [editingMealIndex, setEditingMealIndex] = React.useState<number | null>(null);
+  const [editingSnackId, setEditingSnackId] = React.useState<string | null>(null);
 
   const updateMeal = (
     index: number,
@@ -960,10 +893,7 @@ function FoodPage() {
       ...prev,
       food: {
         ...prev.food,
-        meals: [
-          ...prev.food.meals,
-          { day: "New Day", breakfast: "", lunch: "", dinner: "" },
-        ],
+        meals: [...prev.food.meals, { day: "New Day", breakfast: "", lunch: "", dinner: "" }],
       },
     }));
     setEditingMealIndex(meals.length);
@@ -977,16 +907,11 @@ function FoodPage() {
         meals: prev.food.meals.filter((_, i) => i !== index),
       },
     }));
-    if (editingMealIndex === index) {
-      setEditingMealIndex(null);
-    }
+    if (editingMealIndex === index) setEditingMealIndex(null);
   };
-
-  /* ===== Snack Helpers ===== */
 
   const ensureSnackId = (snack: any, index: number) => {
     if (snack.id) return snack.id as string;
-    // generate a stable-ish fallback id based on index + name
     return `snack-${index}`;
   };
 
@@ -1025,16 +950,14 @@ function FoodPage() {
         }),
       },
     }));
-    if (editingSnackId === id) {
-      setEditingSnackId(null);
-    }
+    if (editingSnackId === id) setEditingSnackId(null);
   };
 
   return (
     <div className="card">
       <h2>Food Plan</h2>
 
-      {/* ==== MEALS SECTION ==== */}
+      {/* Meals */}
       <h3>Meals</h3>
 
       {meals.map((m, index) => {
@@ -1071,20 +994,19 @@ function FoodPage() {
               >
                 <button
                   type="button"
-                  className="secondary"
-                  onClick={() =>
-                    setEditingMealIndex(isEditing ? null : index)
-                  }
+                  className="secondary icon-circle"
+                  onClick={() => setEditingMealIndex(isEditing ? null : index)}
+                  title={isEditing ? "Done editing day" : "Edit day"}
                 >
                   <IconEdit />
-                  {isEditing ? "Done" : "Edit"}
                 </button>
                 <button
                   type="button"
-                  className="danger"
+                  className="danger icon-circle"
                   onClick={() => removeMeal(index)}
+                  title="Delete day"
                 >
-                  <IconDelete />
+                  <IconTrash />
                 </button>
               </div>
             </div>
@@ -1093,9 +1015,7 @@ function FoodPage() {
             <div className="row" style={{ marginTop: "0.4rem" }}>
               <input
                 value={m.breakfast}
-                onChange={(e) =>
-                  updateMeal(index, "breakfast", e.target.value)
-                }
+                onChange={(e) => updateMeal(index, "breakfast", e.target.value)}
                 placeholder="Breakfast"
                 readOnly={!isEditing}
                 style={{ flex: "1 1 auto" }}
@@ -1106,9 +1026,7 @@ function FoodPage() {
             <div className="row" style={{ marginTop: "0.4rem" }}>
               <input
                 value={m.lunch}
-                onChange={(e) =>
-                  updateMeal(index, "lunch", e.target.value)
-                }
+                onChange={(e) => updateMeal(index, "lunch", e.target.value)}
                 placeholder="Lunch"
                 readOnly={!isEditing}
                 style={{ flex: "1 1 auto" }}
@@ -1119,9 +1037,7 @@ function FoodPage() {
             <div className="row" style={{ marginTop: "0.4rem" }}>
               <input
                 value={m.dinner}
-                onChange={(e) =>
-                  updateMeal(index, "dinner", e.target.value)
-                }
+                onChange={(e) => updateMeal(index, "dinner", e.target.value)}
                 placeholder="Dinner"
                 readOnly={!isEditing}
                 style={{ flex: "1 1 auto" }}
@@ -1135,7 +1051,7 @@ function FoodPage() {
         ➕ Add Meal
       </button>
 
-      {/* ==== SNACKS SECTION ==== */}
+      {/* Snacks */}
       <h3 style={{ marginTop: "1.5rem" }}>Snacks</h3>
 
       {snacks.map((s: any, idx: number) => {
@@ -1171,20 +1087,19 @@ function FoodPage() {
             >
               <button
                 type="button"
-                className="secondary"
-                onClick={() =>
-                  setEditingSnackId(isEditing ? null : id)
-                }
+                className="secondary icon-circle"
+                onClick={() => setEditingSnackId(isEditing ? null : id)}
+                title={isEditing ? "Done editing snack" : "Edit snack"}
               >
                 <IconEdit />
-                {isEditing ? "Done" : "Edit"}
               </button>
               <button
                 type="button"
-                className="danger"
+                className="danger icon-circle"
                 onClick={() => removeSnack(id)}
+                title="Delete snack"
               >
-                <IconDelete />
+                <IconTrash />
               </button>
             </div>
           </div>
@@ -1198,19 +1113,18 @@ function FoodPage() {
   );
 }
 
+/* ---- Booze Page ---- */
+
 function BoozePage() {
   const { state, setState } = useCamp();
   const booze = state!.booze ?? [];
   const travelers = state!.timeline.travel ?? [];
 
-  const [editingBoozeId, setEditingBoozeId] = React.useState<string | null>(
-    null
-  );
+  const [editingBoozeId, setEditingBoozeId] = React.useState<string | null>(null);
   const [editingPrefId, setEditingPrefId] = React.useState<string | null>(null);
 
   type PreferenceValue = "beer" | "liquor" | "non-alcoholic";
 
-  // Safely read preferences even if they didn't exist in older saved state
   const boozePrefs:
     | { travelerId: string; preference: PreferenceValue }[]
     | [] =
@@ -1218,8 +1132,6 @@ function BoozePage() {
       travelerId: string;
       preference: PreferenceValue;
     }[]) ?? [];
-
-  /* ===== Inventory helpers ===== */
 
   const updateItem = (
     id: string,
@@ -1254,14 +1166,11 @@ function BoozePage() {
 
   const removeItem = (id: string) => {
     setState((prev) => ({
-
       ...prev,
       booze: prev.booze.filter((b: any) => b.id !== id),
     }));
     if (editingBoozeId === id) setEditingBoozeId(null);
   };
-
-  /* ===== Preferences helpers ===== */
 
   const updatePreference = (travelerId: string, preference: PreferenceValue) => {
     setState((prev) => {
@@ -1282,19 +1191,16 @@ function BoozePage() {
     });
   };
 
-  const getPreferenceFor = (
-    travelerId: string
-  ): PreferenceValue | "" => {
+  const getPreferenceFor = (travelerId: string): PreferenceValue | "" => {
     const pref = boozePrefs.find((p) => p.travelerId === travelerId);
     return pref?.preference ?? "";
   };
 
   return (
     <div className="card">
-      {/* ===== Inventory section ===== */}
+      {/* Inventory */}
       <h2>Booze Inventory</h2>
 
-      {/* Column headers */}
       <div
         className="row"
         style={{
@@ -1318,12 +1224,9 @@ function BoozePage() {
             className="row"
             style={{ marginBottom: "0.5rem", alignItems: "center" }}
           >
-            {/* Type */}
             <input
               value={b.type}
-              onChange={(e) =>
-                updateItem(b.id, "type", e.target.value)
-              }
+              onChange={(e) => updateItem(b.id, "type", e.target.value)}
               placeholder="Type"
               readOnly={!isEditing}
               style={{
@@ -1333,12 +1236,9 @@ function BoozePage() {
               }}
             />
 
-            {/* Brand / Flavor */}
             <input
               value={b.label}
-              onChange={(e) =>
-                updateItem(b.id, "label", e.target.value)
-              }
+              onChange={(e) => updateItem(b.id, "label", e.target.value)}
               placeholder="Brand / Flavor"
               readOnly={!isEditing}
               style={{
@@ -1348,12 +1248,9 @@ function BoozePage() {
               }}
             />
 
-            {/* Amount */}
             <input
               value={b.quantity}
-              onChange={(e) =>
-                updateItem(b.id, "quantity", e.target.value)
-              }
+              onChange={(e) => updateItem(b.id, "quantity", e.target.value)}
               placeholder="Qty"
               readOnly={!isEditing}
               style={{
@@ -1363,12 +1260,9 @@ function BoozePage() {
               }}
             />
 
-            {/* Who */}
             <select
               value={b.who || ""}
-              onChange={(e) =>
-                updateItem(b.id, "who", e.target.value)
-              }
+              onChange={(e) => updateItem(b.id, "who", e.target.value)}
               disabled={!isEditing}
               style={{
                 flex: "0 1 160px",
@@ -1382,7 +1276,6 @@ function BoozePage() {
               ))}
             </select>
 
-            {/* Right-aligned actions */}
             <div
               style={{
                 display: "flex",
@@ -1392,20 +1285,19 @@ function BoozePage() {
             >
               <button
                 type="button"
-                className="secondary"
-                onClick={() =>
-                  setEditingBoozeId(isEditing ? null : b.id)
-                }
+                className="secondary icon-circle"
+                onClick={() => setEditingBoozeId(isEditing ? null : b.id)}
+                title={isEditing ? "Done editing item" : "Edit item"}
               >
                 <IconEdit />
-                {isEditing ? "Done" : "Edit"}
               </button>
               <button
                 type="button"
-                className="danger"
+                className="danger icon-circle"
                 onClick={() => removeItem(b.id)}
+                title="Delete item"
               >
-                <IconDelete />
+                <IconTrash />
               </button>
             </div>
           </div>
@@ -1416,16 +1308,14 @@ function BoozePage() {
         ➕ Add Item
       </button>
 
-      {/* ===== Preferences section ===== */}
+      {/* Preferences */}
       <h2 style={{ marginTop: "1.5rem" }}>Preferences</h2>
       <p className="muted" style={{ marginBottom: "0.5rem" }}>
         Set each traveler&apos;s go-to option so booze runs stay efficient.
       </p>
 
       {travelers.length === 0 && (
-        <p className="muted">
-          No travelers yet. Add people in the Travel Plan section first.
-        </p>
+        <p className="muted">No travelers yet. Add people in the Travel Plan section first.</p>
       )}
 
       {travelers.map((t) => {
@@ -1438,7 +1328,6 @@ function BoozePage() {
             className="row"
             style={{ marginBottom: "0.4rem", alignItems: "center" }}
           >
-            {/* Name (not editable here) */}
             <span
               style={{
                 minWidth: 160,
@@ -1449,15 +1338,9 @@ function BoozePage() {
               {t.name || "Unnamed traveler"}
             </span>
 
-            {/* Preference dropdown */}
             <select
               value={value}
-              onChange={(e) =>
-                updatePreference(
-                  t.id,
-                  e.target.value as PreferenceValue
-                )
-              }
+              onChange={(e) => updatePreference(t.id, e.target.value as PreferenceValue)}
               disabled={!isEditing}
               style={{ flex: "0 0 180px" }}
             >
@@ -1467,7 +1350,6 @@ function BoozePage() {
               <option value="non-alcoholic">Non-alcoholic</option>
             </select>
 
-            {/* Right-aligned Edit button */}
             <div
               style={{
                 display: "flex",
@@ -1477,13 +1359,11 @@ function BoozePage() {
             >
               <button
                 type="button"
-                className="secondary"
-                onClick={() =>
-                  setEditingPrefId(isEditing ? null : t.id)
-                }
+                className="secondary icon-circle"
+                onClick={() => setEditingPrefId(isEditing ? null : t.id)}
+                title={isEditing ? "Done editing preference" : "Edit preference"}
               >
                 <IconEdit />
-                {isEditing ? "Done" : "Edit"}
               </button>
             </div>
           </div>
@@ -1493,39 +1373,36 @@ function BoozePage() {
   );
 }
 
+/* ---- Rules Page ---- */
+
 function RulesPage() {
   const { state, setState } = useCamp();
   const rules = state!.rules;
 
-  // Track which rule (if any) is currently being edited
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
   const updateRule = (id: string, value: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      rules: prev.rules.map(r =>
-        r.id === id ? { ...r, text: value } : r
-      ),
+      rules: prev.rules.map((r) => (r.id === id ? { ...r, text: value } : r)),
     }));
   };
 
   const addRule = () => {
     const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       rules: [...prev.rules, { id, text: "New rule" }],
     }));
-    setEditingId(id); // auto-open new rule for editing
+    setEditingId(id);
   };
 
   const removeRule = (id: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      rules: prev.rules.filter(r => r.id !== id),
+      rules: prev.rules.filter((r) => r.id !== id),
     }));
-    if (editingId === id) {
-      setEditingId(null);
-    }
+    if (editingId === id) setEditingId(null);
   };
 
   return (
@@ -1553,7 +1430,7 @@ function RulesPage() {
               placeholder="Rule / note"
               readOnly={!isEditing}
               style={{
-                flex: "0 1 260px", // shorter box
+                flex: "0 1 260px",
                 opacity: isEditing ? 1 : 0.85,
                 cursor: isEditing ? "text" : "default",
               }}
@@ -1561,21 +1438,20 @@ function RulesPage() {
 
             <button
               type="button"
-              className="secondary"
-              onClick={() =>
-                setEditingId(isEditing ? null : r.id)
-              }
+              className="secondary icon-circle"
+              onClick={() => setEditingId(isEditing ? null : r.id)}
+              title={isEditing ? "Done editing rule" : "Edit rule"}
             >
               <IconEdit />
-              {isEditing ? "Done" : "Edit"}
             </button>
 
             <button
               type="button"
-              className="danger"
+              className="danger icon-circle"
               onClick={() => removeRule(r.id)}
+              title="Delete rule"
             >
-              <IconDelete />
+              <IconTrash />
             </button>
           </div>
         );
@@ -1588,7 +1464,7 @@ function RulesPage() {
   );
 }
 
-/* ===== Settings + Backup ===== */
+/* ========= Settings + Backup ========= */
 
 function SettingsCard() {
   const { setState } = useCamp();
@@ -1684,14 +1560,13 @@ function BackupCard() {
   );
 }
 
-/* ===== Theme & PWA hook ===== */
+/* ========= Theme & PWA hook ========= */
 
 function useThemeAndPWA() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [canInstall, setCanInstall] = useState(false);
 
-  // Init theme
   useEffect(() => {
     let stored: string | null = null;
     try {
@@ -1706,15 +1581,10 @@ function useThemeAndPWA() {
     setTheme(stored === "dark" ? "dark" : "light");
   }, []);
 
-  // Apply theme
   useEffect(() => {
     const root = document.documentElement;
-    const appIconLink = document.getElementById(
-      "app-icon"
-    ) as HTMLLinkElement | null;
-    const inlineIcon = document.getElementById(
-      "cow-inline-icon"
-    ) as HTMLImageElement | null;
+    const appIconLink = document.getElementById("app-icon") as HTMLLinkElement | null;
+    const inlineIcon = document.getElementById("cow-inline-icon") as HTMLImageElement | null;
     const themeMeta = document.querySelector(
       'meta[name="theme-color"]'
     ) as HTMLMetaElement | null;
@@ -1736,7 +1606,6 @@ function useThemeAndPWA() {
     } catch {}
   }, [theme]);
 
-  // PWA install + SW update handling
   useEffect(() => {
     const handler = (e: any) => {
       e.preventDefault();
@@ -1745,8 +1614,7 @@ function useThemeAndPWA() {
     };
     window.addEventListener("beforeinstallprompt", handler);
 
-    let hasReloadedForSW =
-      sessionStorage.getItem("reloadedForSW") === "yes";
+    let hasReloadedForSW = sessionStorage.getItem("reloadedForSW") === "yes";
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.addEventListener("message", (event) => {
@@ -1784,5 +1652,3 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
-
-
