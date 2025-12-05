@@ -787,27 +787,23 @@ function TimelinePage() {
 
 function FoodPage() {
   const { state, setState } = useCamp();
-  const { food } = state!;
+  const { meals, snacks } = state!.food;
 
-  const [editingMealIndex, setEditingMealIndex] =
-    React.useState<number | null>(null);
-  const [editingSnackIndex, setEditingSnackIndex] =
-    React.useState<number | null>(null);
+  const [editingMealIndex, setEditingMealIndex] = React.useState<number | null>(null);
+  const [editingSnackId, setEditingSnackId] = React.useState<string | null>(null);
+
+  /* ===== Meal Helpers ===== */
 
   const updateMeal = (
-    idx: number,
+    index: number,
     field: "day" | "breakfast" | "lunch" | "dinner",
     value: string
   ) => {
-    setState((prev) => ({
-      ...prev,
-      food: {
-        ...prev.food,
-        meals: prev.food.meals.map((m, i) =>
-          i === idx ? { ...m, [field]: value } : m
-        ),
-      },
-    }));
+    setState((prev) => {
+      const updated = [...prev.food.meals];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, food: { ...prev.food, meals: updated } };
+    });
   };
 
   const addMeal = () => {
@@ -817,82 +813,193 @@ function FoodPage() {
         ...prev.food,
         meals: [
           ...prev.food.meals,
-          { day: "New Day", breakfast: "", lunch: "", dinner: "" },
+          {
+            day: "New Day",
+            breakfast: "",
+            lunch: "",
+            dinner: "",
+          },
         ],
       },
     }));
-    setEditingMealIndex(food.meals.length);
+    setEditingMealIndex(meals.length);
   };
 
-  const removeMeal = (idx: number) => {
+  const removeMeal = (index: number) => {
     setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
-        meals: prev.food.meals.filter((_, i) => i !== idx),
+        meals: prev.food.meals.filter((_, i) => i !== index),
       },
     }));
-    if (editingMealIndex === idx) setEditingMealIndex(null);
+    if (editingMealIndex === index) setEditingMealIndex(null);
   };
 
-  const addSnack = () => {
+  /* ===== Snack Helpers ===== */
+  const updateSnack = (id: string, value: string) => {
     setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
-        snacks: [...prev.food.snacks, { name: "New Snack" }],
-      },
-    }));
-    setEditingSnackIndex(food.snacks.length);
-  };
-
-  const updateSnack = (idx: number, value: string) => {
-    setState((prev) => ({
-      ...prev,
-      food: {
-        ...prev.food,
-        snacks: prev.food.snacks.map((s, i) =>
-          i === idx ? { ...s, name: value } : s
+        snacks: prev.food.snacks.map((s) =>
+          s.id === id ? { ...s, name: value } : s
         ),
       },
     }));
   };
 
-  const removeSnack = (idx: number) => {
+  const addSnack = () => {
+    const id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
     setState((prev) => ({
       ...prev,
       food: {
         ...prev.food,
-        snacks: prev.food.snacks.filter((_, i) => i !== idx),
+        snacks: [...prev.food.snacks, { id, name: "New Snack" }],
       },
     }));
-    if (editingSnackIndex === idx) setEditingSnackIndex(null);
+    setEditingSnackId(id);
+  };
+
+  const removeSnack = (id: string) => {
+    setState((prev) => ({
+      ...prev,
+      food: {
+        ...prev.food,
+        snacks: prev.food.snacks.filter((s) => s.id !== id),
+      },
+    }));
+    if (editingSnackId === id) setEditingSnackId(null);
   };
 
   return (
     <div className="card">
-      <h2>Meal Plan</h2>
-      {food.meals.map((m, i) => {
-        const isEditing = editingMealIndex === i;
+      <h2>Food Plan</h2>
+
+      {/* ==== MEALS SECTION ==== */}
+      <h3>Meals</h3>
+
+      {meals.map((m, index) => {
+        const isEditing = editingMealIndex === index;
+
         return (
-          <div key={i} className="card" style={{ marginBottom: "0.5rem" }}>
+          <div
+            key={index}
+            className="card"
+            style={{ padding: "0.75rem", marginBottom: "0.75rem" }}
+          >
+            {/* Day row */}
             <div className="row" style={{ alignItems: "center" }}>
               <input
                 value={m.day}
-                onChange={(e) => updateMeal(i, "day", e.target.value)}
-                placeholder="Day"
+                onChange={(e) => updateMeal(index, "day", e.target.value)}
+                placeholder="Day (e.g. Day 1)"
                 readOnly={!isEditing}
                 style={{
-                  flex: "0 1 160px",
+                  flex: "1 1 auto",
+                  maxWidth: 180,
                   opacity: isEditing ? 1 : 0.85,
-                  cursor: isEditing ? "text" : "default",
                 }}
               />
+
+              {/* Right-aligned edit/delete */}
+              <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    setEditingMealIndex(isEditing ? null : index)
+                  }
+                >
+                  {isEditing ? "Done" : "Edit"}
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => removeMeal(index)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Breakfast */}
+            <div className="row" style={{ marginTop: "0.4rem" }}>
+              <label style={{ width: 80 }}>Breakfast</label>
+              <input
+                value={m.breakfast}
+                onChange={(e) =>
+                  updateMeal(index, "breakfast", e.target.value)
+                }
+                readOnly={!isEditing}
+                style={{ flex: "1 1 auto" }}
+              />
+            </div>
+
+            {/* Lunch */}
+            <div className="row" style={{ marginTop: "0.4rem" }}>
+              <label style={{ width: 80 }}>Lunch</label>
+              <input
+                value={m.lunch}
+                onChange={(e) =>
+                  updateMeal(index, "lunch", e.target.value)
+                }
+                readOnly={!isEditing}
+                style={{ flex: "1 1 auto" }}
+              />
+            </div>
+
+            {/* Dinner */}
+            <div className="row" style={{ marginTop: "0.4rem" }}>
+              <label style={{ width: 80 }}>Dinner</label>
+              <input
+                value={m.dinner}
+                onChange={(e) =>
+                  updateMeal(index, "dinner", e.target.value)
+                }
+                readOnly={!isEditing}
+                style={{ flex: "1 1 auto" }}
+              />
+            </div>
+          </div>
+        );
+      })}
+
+      <button type="button" className="secondary" onClick={addMeal}>
+        ➕ Add Meal
+      </button>
+
+      {/* ==== SNACKS SECTION ==== */}
+      <h3 style={{ marginTop: "1.5rem" }}>Snacks</h3>
+
+      {snacks.map((s) => {
+        const isEditing = editingSnackId === s.id;
+
+        return (
+          <div
+            key={s.id}
+            className="row"
+            style={{ marginBottom: "0.5rem", alignItems: "center" }}
+          >
+            <input
+              value={s.name}
+              onChange={(e) => updateSnack(s.id, e.target.value)}
+              placeholder="Snack"
+              readOnly={!isEditing}
+              style={{
+                flex: "1 1 auto",
+                maxWidth: 260,
+                opacity: isEditing ? 1 : 0.85,
+              }}
+            />
+
+            {/* Right-aligned buttons */}
+            <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
               <button
                 type="button"
                 className="secondary"
                 onClick={() =>
-                  setEditingMealIndex(isEditing ? null : i)
+                  setEditingSnackId(isEditing ? null : s.id)
                 }
               >
                 {isEditing ? "Done" : "Edit"}
@@ -900,95 +1007,15 @@ function FoodPage() {
               <button
                 type="button"
                 className="danger"
-                onClick={() => removeMeal(i)}
+                onClick={() => removeSnack(s.id)}
               >
                 ✕
               </button>
             </div>
-            <div className="row">
-              <input
-                value={m.breakfast}
-                onChange={(e) =>
-                  updateMeal(i, "breakfast", e.target.value)
-                }
-                placeholder="Breakfast"
-                readOnly={!isEditing}
-                style={{
-                  opacity: isEditing ? 1 : 0.85,
-                  cursor: isEditing ? "text" : "default",
-                }}
-              />
-              <input
-                value={m.lunch}
-                onChange={(e) =>
-                  updateMeal(i, "lunch", e.target.value)
-                }
-                placeholder="Lunch"
-                readOnly={!isEditing}
-                style={{
-                  opacity: isEditing ? 1 : 0.85,
-                  cursor: isEditing ? "text" : "default",
-                }}
-              />
-              <input
-                value={m.dinner}
-                onChange={(e) =>
-                  updateMeal(i, "dinner", e.target.value)
-                }
-                placeholder="Dinner"
-                readOnly={!isEditing}
-                style={{
-                  opacity: isEditing ? 1 : 0.85,
-                  cursor: isEditing ? "text" : "default",
-                }}
-              />
-            </div>
           </div>
         );
       })}
-      <button type="button" className="secondary" onClick={addMeal}>
-        ➕ Add Day
-      </button>
 
-      <h2 style={{ marginTop: "1rem" }}>Snacks</h2>
-      {food.snacks.map((s, i) => {
-        const isEditing = editingSnackIndex === i;
-        return (
-          <div
-            key={i}
-            className="row"
-            style={{ marginBottom: "0.5rem", alignItems: "center" }}
-          >
-            <input
-              value={s.name}
-              onChange={(e) => updateSnack(i, e.target.value)}
-              placeholder="Snack"
-              readOnly={!isEditing}
-              style={{
-                flex: "0 1 260px",
-                opacity: isEditing ? 1 : 0.85,
-                cursor: isEditing ? "text" : "default",
-              }}
-            />
-            <button
-              type="button"
-              className="secondary"
-              onClick={() =>
-                setEditingSnackIndex(isEditing ? null : i)
-              }
-            >
-              {isEditing ? "Done" : "Edit"}
-            </button>
-            <button
-              type="button"
-              className="danger"
-              onClick={() => removeSnack(i)}
-            >
-              ✕
-            </button>
-          </div>
-        );
-      })}
       <button type="button" className="secondary" onClick={addSnack}>
         ➕ Add Snack
       </button>
@@ -1578,6 +1605,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
