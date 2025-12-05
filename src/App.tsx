@@ -585,13 +585,6 @@ function TimelinePage() {
               className="row"
               style={{ marginBottom: "0.35rem", alignItems: "center" }}
             >
-              <span
-                className="muted"
-                style={{ width: 28, textAlign: "right", marginRight: 4 }}
-              >
-                {dayIndex + 1}.
-              </span>
-
               <input
                 value={day.label}
                 onChange={(e) => updateDayLabel(day.id, e.target.value)}
@@ -1406,6 +1399,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
