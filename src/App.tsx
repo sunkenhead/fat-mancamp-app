@@ -1,192 +1,167 @@
-import React, { useEffect, useState } from "react";
-import { CampProvider, useCamp } from "./CampContext";
+import React, { useState, useEffect, createContext, useContext } from "react";
+import {
+  IconFrontPage,
+  IconTimeline,
+  IconFood,
+  IconBooze,
+  IconRules,
+  IconAdmin,
+} from "./icons"; // <-- Make sure icons.tsx exists
 
-const THEME_KEY = "fatman_theme";
-const LIGHT_ICON_192 = "/icon-192.png";
-const DARK_ICON_192 = "/icon-192-dark.png";
+/* ================================
+   CONTEXT + GLOBAL CAMP STATE
+================================ */
 
-type PageKey = "front" | "timeline" | "food" | "booze" | "rules";
+const CampContext = createContext(null);
 
-export function App() {
-  return (
-    <CampProvider>
-      <Shell />
-    </CampProvider>
-  );
+export function useCamp() {
+  return useContext(CampContext);
 }
 
-function Shell() {
-  const { state, loading, saving, save } = useCamp();
-  const { theme, toggleTheme, canInstall, install } = useThemeAndPWA();
+export default function App() {
+  const [state, setState] = useState(null);
+  const [currentTab, setCurrentTab] = useState("front");
+  const [theme, setTheme] = useState("light");
 
-  const [page, setPage] = useState<PageKey>("front");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  // Load saved state from KV (through your worker)
+  useEffect(() => {
+    async function load() {
+      try {
+        const response = await fetch("/api/state");
+        const data = await response.json();
+        setState(data);
+      } catch (err) {
+        console.error("Failed to load:", err);
+      }
+    }
+    load();
+  }, []);
 
-  if (loading || !state) {
-    return (
-      <div className="layout">
-        <div className="main-area">
-          <div className="app">
-            <p>Loading Fat Man Camp…</p>
-          </div>
-        </div>
-      </div>
-    );
+  // Save state to KV when changed
+  async function saveState(newState) {
+    setState(newState);
+    try {
+      await fetch("/api/state", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newState),
+      });
+    } catch (err) {
+      console.error("Save failed:", err);
+    }
   }
 
+  if (!state) {
+    return <div className="loading">Loading Fat Man Camp...</div>;
+  }
+
+  const ctx = {
+    state,
+    setState: (fn) => saveState(typeof fn === "function" ? fn(state) : fn),
+  };
+
+  /* ================================
+     TAB DEFINITIONS (with icons)
+  ================================= */
+
+  const TABS = [
+    { id: "front", label: "Front Page", icon: <IconFrontPage /> },
+    { id: "timeline", label: "Timeline", icon: <IconTimeline /> },
+    { id: "food", label: "Food Plan", icon: <IconFood /> },
+    { id: "booze", label: "Booze", icon: <IconBooze /> },
+    { id: "rules", label: "Notes / Rules", icon: <IconRules /> },
+    { id: "admin", label: "Admin", icon: <IconAdmin /> },
+  ];
+
+  /* ================================
+     PAGE CONTENT HANDLERS
+  ================================= */
+
+  function renderPage() {
+    switch (currentTab) {
+      case "front":
+        return <FrontPage />;
+      case "timeline":
+        return <TimelinePage />;
+      case "food":
+        return <FoodPage />;
+      case "booze":
+        return <BoozePage />;
+      case "rules":
+        return <RulesPage />;
+      case "admin":
+        return <AdminPage />;
+      default:
+        return <FrontPage />;
+    }
+  }
+
+  /* ================================
+     MAIN APP SHELL
+  ================================= */
+
   return (
-    <div className="layout">
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
-        <button
-          className="sidebar-toggle"
-          type="button"
-          onClick={() => setSidebarCollapsed((c) => !c)}
-        >
-          {sidebarCollapsed ? "➡️" : "⬅️"}
-        </button>
-
-        <div className="sidebar-logo">
-          <img src={theme === "dark" ? DARK_ICON_192 : LIGHT_ICON_192} alt="Fat-Man Camp" />
-          {!sidebarCollapsed && <span>Fat-Man Camp</span>}
-        </div>
-
-        <nav className="sidebar-nav">
-          <SidebarItem
-            icon="🏕️"
-            label="Front Page"
-            active={page === "front"}
-            collapsed={sidebarCollapsed}
-            onClick={() => setPage("front")}
-          />
-          <SidebarItem
-            icon="🕒"
-            label="Timeline"
-            active={page === "timeline"}
-            collapsed={sidebarCollapsed}
-            onClick={() => setPage("timeline")}
-          />
-          <SidebarItem
-            icon="🍳"
-            label="Food Plan"
-            active={page === "food"}
-            collapsed={sidebarCollapsed}
-            onClick={() => setPage("food")}
-          />
-          <SidebarItem
-            icon="🥃"
-            label="Booze"
-            active={page === "booze"}
-            collapsed={sidebarCollapsed}
-            onClick={() => setPage("booze")}
-          />
-          <SidebarItem
-            icon="📜"
-            label="Notes / Rules"
-            active={page === "rules"}
-            collapsed={sidebarCollapsed}
-            onClick={() => setPage("rules")}
-          />
-        </nav>
-      </aside>
-
-      {/* Main content */}
-      <div className="main-area">
-        <div className="app">
-          {/* Top bar */}
-          <div className="top-bar">
-            <div className="top-left">
-              <img
-                id="cow-inline-icon"
-                className="cow-icon-inline"
-                src={theme === "dark" ? DARK_ICON_192 : LIGHT_ICON_192}
-                alt="Fat Man Camp icon"
-              />
-              <div>
-                <h1>Fat Man Camp</h1>
-                <div className="subtitle">
-                  Annual reunion of active & retired mischief, way too much food, and war
-                  stories.
-                </div>
-              </div>
-            </div>
-            <div className="top-right">
-              <div className="top-buttons">
-                <button
-                  id="theme-toggle-btn"
-                  className="secondary"
-                  type="button"
-                  onClick={toggleTheme}
-                >
-                  {theme === "dark" ? "🌞 Light" : "🌙 Dark"}
-                </button>
-                {canInstall && (
-                  <button
-                    id="install-app-btn"
-                    className="primary"
-                    type="button"
-                    onClick={install}
-                  >
-                    📲 Install app
-                  </button>
-                )}
-                <button
-                  className="primary"
-                  type="button"
-                  onClick={save}
-                  disabled={saving}
-                >
-                  {saving ? "Saving…" : "Save"}
-                </button>
-              </div>
+    <CampContext.Provider value={ctx}>
+      <div className="app">
+        {/* ===== Top Header ===== */}
+        <div className="top-bar">
+          <div className="top-left">
+            <img src="/icon-192.png" className="app-icon" />
+            <div className="app-title-block">
+              <h1>Fat Man Camp</h1>
+              <p>Annual reunion of retired mischief, war stories & too much food.</p>
             </div>
           </div>
 
-          {/* Pages */}
-          {page === "front" && <FrontPage />}
-          {page === "timeline" && <TimelinePage />}
-          {page === "food" && <FoodPage />}
-          {page === "booze" && <BoozePage />}
-          {page === "rules" && <RulesPage />}
+          {/* Top right controls */}
+          <div className="top-right">
+            <button
+              className="secondary"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? "Light" : "Dark"}
+            </button>
 
-          <SettingsCard />
-          <BackupCard />
+            <button className="secondary" onClick={() => window.prompt("Install via browser menu!")}>
+              Install app
+            </button>
+
+            <button
+              className="primary"
+              onClick={() => saveState(state)}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+
+        {/* ===== Tabs Row ===== */}
+        <div className="tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`tab-button ${currentTab === tab.id ? "active" : ""}`}
+              onClick={() => setCurrentTab(tab.id)}
+            >
+              <span className="tab-icon">{tab.icon}</span>
+              <span className="tab-label">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* ===== Main Content ===== */}
+        <div className="app-main">
+          <div className="app-main-inner">{renderPage()}</div>
         </div>
       </div>
-    </div>
+    </CampContext.Provider>
   );
 }
 
-/* ===== Sidebar components ===== */
-
-type SidebarItemProps = {
-  icon: string;
-  label: string;
-  active: boolean;
-  collapsed: boolean;
-  onClick: () => void;
-};
-
-function SidebarItem({
-  icon,
-  label,
-  active,
-  collapsed,
-  onClick,
-}: SidebarItemProps) {
-  return (
-    <button
-      type="button"
-      className={`sidebar-item ${active ? "active" : ""}`}
-      onClick={onClick}
-    >
-      <span className="sidebar-item-icon">{icon}</span>
-      {!collapsed && <span className="sidebar-item-label">{label}</span>}
-    </button>
-  );
-}
-
-/* ===== Pages ===== */
+/* ===========================================================
+   PAGE COMPONENTS  
+   (Paste your existing ones below — they stay unchanged)
+=========================================================== */
 
 function FrontPage() {
   const { state } = useCamp();
@@ -1640,6 +1615,7 @@ function useThemeAndPWA() {
 
   return { theme, toggleTheme, canInstall, install };
 }
+
 
 
 
